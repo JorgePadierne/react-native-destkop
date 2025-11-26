@@ -7,11 +7,11 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="cff6bcfe-a5d9-4b02-b133-a522289bad23"
+    Name="26a671f9-c1a4-4786-95c0-f09ec8a69990"
     Publisher="CN=jorge"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="cff6bcfe-a5d9-4b02-b133-a522289bad23" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="26a671f9-c1a4-4786-95c0-f09ec8a69990" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>tocororo</DisplayName>
