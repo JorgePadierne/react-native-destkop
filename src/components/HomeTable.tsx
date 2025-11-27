@@ -41,9 +41,6 @@ function HomeTable() {
       )}
       <View style={styles.listContainer}>
         <View style={styles.tableContainer}>
-          <View>
-            <Text style={styles.tableTitle}>Asociados</Text>
-          </View>
           <View style={styles.tableHeader}>
             <Text style={styles.tableSubtitle}>Nombre Completo</Text>
             <Text style={styles.tableSubtitle}>Fecha de Alta</Text>
@@ -87,7 +84,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 30,
-    paddingBottom: 200,
+    paddingBottom: 40,
     borderWidth: 1,
     borderColor: '#E5E7EB',
   },
@@ -96,7 +93,7 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: 'row',
-    maxWidth: '60%',
+    width: '100%',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 12,
@@ -114,6 +111,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 8,
     color: '#000000ff',
+    textAlign: 'center',
+    flex: 1,
   },
   emptyText: {
     textAlign: 'center',

@@ -5,9 +5,9 @@ import {Integrante} from '../types';
 
 interface Props {
   integrante: Integrante;
-  onEditar: (integrante: Integrante) => void;
-  onEliminar: (integrante: Integrante) => void;
-  onGuardarCuotas: (year: number, cuotas: boolean[]) => void;
+  onEditar?: (integrante: Integrante) => void;
+  onEliminar?: (integrante: Integrante) => void;
+  onGuardarCuotas?: (year: number, cuotas: boolean[]) => void;
 }
 
 const IntegranteItem: React.FC<Props> = ({integrante}) => {
@@ -18,10 +18,10 @@ const IntegranteItem: React.FC<Props> = ({integrante}) => {
           <Text style={styles.nombre} numberOfLines={1}>
             {integrante.nombre}
           </Text>
-          <Text style={styles.nombre}>Hola</Text>
-          <Text style={styles.nombre}>Hola</Text>
-          <Text style={styles.nombre}>Hola</Text>
-          <Text style={styles.nombre}>Hola</Text>
+          <Text style={styles.nombre}>-</Text>
+          <Text style={styles.nombre}>-</Text>
+          <Text style={styles.nombre}>-</Text>
+          <Text style={styles.nombre}>-</Text>
         </View>
       </View>
     </View>
@@ -33,11 +33,10 @@ export default IntegranteItem;
 const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    paddingBottom: 50,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     backgroundColor: '#FFFFFF',
-    marginBottom: 6,
+    marginBottom: 2,
     borderRadius: 6,
     alignItems: 'flex-start',
     shadowColor: '#000',
@@ -50,17 +49,19 @@ const styles = StyleSheet.create({
   infoContainer: {flex: 1},
   headerRow: {
     flexDirection: 'row',
-    maxWidth: '60%',
-    justifyContent: 'flex-start',
+    width: '100%',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 2,
   },
   nombre: {
     fontWeight: '600',
     fontSize: 14,
     color: '#0052A5',
     flex: 1,
+    textAlign: 'left',
+    paddingLeft: 50,
   },
   detalleLinea: {color: '#555', fontSize: 11, marginBottom: 2},
   badge: {
