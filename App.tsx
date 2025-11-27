@@ -22,7 +22,7 @@ const RootNavigator: React.FC = () => {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerStyle: {backgroundColor: '#6200EE'},
+          headerStyle: {backgroundColor: '#0052A5'},
           headerTintColor: '#fff',
           headerTitleStyle: {fontWeight: 'bold'},
         }}>
@@ -30,13 +30,13 @@ const RootNavigator: React.FC = () => {
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            options={{title: 'ASOCIACION TOCORORO'}}
+            options={{title: 'ASOCIACIÓN TOCORORO'}}
           />
         ) : (
           <Stack.Screen
             name="Login"
             component={LoginScreen}
-            options={{title: 'Iniciar sesión'}}
+            options={{title: 'ASOCIACIÓN TOCORORO'}}
           />
         )}
       </Stack.Navigator>

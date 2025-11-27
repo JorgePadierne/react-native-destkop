@@ -1,4 +1,3 @@
-// /src/components/IntegranteForm.tsx
 import React, {useState} from 'react';
 import {
   View,
@@ -29,7 +28,10 @@ const IntegranteForm: React.FC<Props> = ({
 
   const handleGuardar = () => {
     if (!nombre || !alta) {
-      Alert.alert('Campos obligatorios', 'Nombre y fecha de alta son obligatorios');
+      Alert.alert(
+        'Campos obligatorios',
+        'Nombre y fecha de alta son obligatorios',
+      );
       return;
     }
     onGuardar({nombre, alta, baja: baja || null});

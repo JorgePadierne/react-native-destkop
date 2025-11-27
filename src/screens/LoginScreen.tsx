@@ -1,10 +1,17 @@
 // /src/screens/LoginScreen.tsx
 import React, {useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet, ActivityIndicator} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../App';
 import {useAuth} from '../context/AuthContext';
+import AnimatedPressable from '../components/AnimatedPressable';
 
 interface Props {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -28,29 +35,36 @@ const LoginScreen: React.FC<Props> = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Iniciar sesión</Text>
-      <TextInput
-        placeholder="Usuario"
-        value={usuario}
-        onChangeText={setUsuario}
-        style={styles.input}
-        placeholderTextColor="#666"
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Contraseña"
-        value={contraseña}
-        onChangeText={setContraseña}
-        style={styles.input}
-        placeholderTextColor="#666"
-        secureTextEntry
-      />
-      {error && <Text style={styles.errorText}>{error}</Text>}
-      {loading ? (
-        <ActivityIndicator size="small" color="#0052A5" />
-      ) : (
-        <Button title="Entrar" onPress={handleLogin} color="#00853E" />
-      )}
+      <View style={styles.card}>
+        <Text style={styles.title}>Iniciar sesión</Text>
+        <TextInput
+          placeholder="Usuario"
+          value={usuario}
+          onChangeText={setUsuario}
+          style={styles.input}
+          placeholderTextColor="#666"
+          autoCapitalize="none"
+        />
+        <TextInput
+          placeholder="Contraseña"
+          value={contraseña}
+          onChangeText={setContraseña}
+          style={styles.input}
+          placeholderTextColor="#666"
+          secureTextEntry
+        />
+        {error && <Text style={styles.errorText}>{error}</Text>}
+        {loading ? (
+          <ActivityIndicator size="small" color="#0052A5" />
+        ) : (
+          <AnimatedPressable
+            onPress={handleLogin}
+            style={styles.pressable}
+            pressedOpacity={0.4}>
+            <Text style={styles.text}>Entrar</Text>
+          </AnimatedPressable>
+        )}
+      </View>
     </View>
   );
 };
@@ -65,16 +79,25 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#E8F4FF',
   },
+  text: {color: 'white', textAlign: 'center'},
+  pressable: {
+    backgroundColor: '#0052A5',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    marginTop: 10,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
-    color: '#D72638',
+    color: '#0052A5',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#0052A5',
+    width: '50%',
+    borderColor: '#023e7bff',
     marginBottom: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -83,8 +106,12 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   card: {
-    width: '85%',
-    maxWidth: 420,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '90%',
+    height: '70%',
+    maxWidth: 500,
+    maxHeight: 350,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingVertical: 20,
