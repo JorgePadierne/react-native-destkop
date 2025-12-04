@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {colors} from '../theme/colors';
 import {
   View,
   Text,
@@ -11,9 +10,11 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {addIntegrante} from '../api/integrantes';
+import {useTheme} from '../context/ThemeContext';
 
 const AddMemberScreen = () => {
   const navigation = useNavigation();
+  const {colors} = useTheme();
   const [nombre, setNombre] = useState('');
   const [alta, setAlta] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ const AddMemberScreen = () => {
       Alert.alert('Éxito', 'Integrante agregado correctamente', [
         {text: 'OK', onPress: () => navigation.goBack()},
       ]);
+    } catch (error) {
       Alert.alert('Error', 'No se pudo agregar el integrante');
     } finally {
       setLoading(false);
@@ -45,17 +47,32 @@ const AddMemberScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Nuevo Integrante</Text>
-        <Text style={styles.subtitle}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
+      <View
+        style={[
+          styles.card,
+          {backgroundColor: colors.surface, shadowColor: colors.cardShadow},
+        ]}>
+        <Text style={[styles.title, {color: colors.primary}]}>
+          Nuevo Integrante
+        </Text>
+        <Text style={[styles.subtitle, {color: colors.textLight}]}>
           Ingresa los datos del nuevo asociado
         </Text>
 
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Nombre Completo</Text>
+          <Text style={[styles.label, {color: colors.textLight}]}>
+            Nombre Completo
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBg,
+                borderColor: colors.border,
+                color: colors.text,
+              },
+            ]}
             value={nombre}
             onChangeText={setNombre}
             placeholder="Ej. Juan Perez"
@@ -64,9 +81,18 @@ const AddMemberScreen = () => {
         </View>
 
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Fecha de Alta</Text>
+          <Text style={[styles.label, {color: colors.textLight}]}>
+            Fecha de Alta
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBg,
+                borderColor: colors.border,
+                color: colors.text,
+              },
+            ]}
             value={alta}
             onChangeText={setAlta}
             placeholder="YYYY-MM-DD"
@@ -75,7 +101,10 @@ const AddMemberScreen = () => {
         </View>
 
         <TouchableOpacity
-          style={styles.saveButton}
+          style={[
+            styles.saveButton,
+            {backgroundColor: colors.primary, shadowColor: colors.primary},
+          ]}
           onPress={handleSave}
           disabled={loading}>
           {loading ? (
@@ -93,14 +122,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: colors.background,
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 30,
-    shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -109,13 +135,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.primary,
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: colors.textLight,
     textAlign: 'center',
     marginBottom: 30,
   },
@@ -123,26 +147,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.textLight,
     marginBottom: 8,
     textTransform: 'uppercase',
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 12,
     padding: 14,
     fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.inputBg,
   },
   saveButton: {
-    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: colors.primary,
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,

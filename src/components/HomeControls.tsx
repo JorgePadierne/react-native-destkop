@@ -6,7 +6,7 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
-import {colors} from '../theme/colors';
+import {ThemeColors} from '../theme/colors';
 
 interface HomeControlsProps {
   searchQuery: string;
@@ -16,6 +16,9 @@ interface HomeControlsProps {
   onFilterStatusChange: (status: 'ALL' | 'ACTIVE' | 'INACTIVE') => void;
   filterDebt: 'ALL' | 'DEBT' | 'CLEAN';
   onFilterDebtChange: (status: 'ALL' | 'DEBT' | 'CLEAN') => void;
+  colors: ThemeColors;
+  toggleTheme: () => void;
+  isDarkMode: boolean;
 }
 
 const HomeControls: React.FC<HomeControlsProps> = ({
@@ -26,34 +29,64 @@ const HomeControls: React.FC<HomeControlsProps> = ({
   onFilterStatusChange,
   filterDebt,
   onFilterDebtChange,
+  colors,
+  toggleTheme,
+  isDarkMode,
 }) => {
   return (
-    <View style={styles.controlsContainer}>
-      <View style={styles.searchRow}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar por nombre..."
-          placeholderTextColor={colors.textLight}
-          value={searchQuery}
-          onChangeText={onSearchChange}
-        />
-        <TouchableOpacity style={styles.addButton} onPress={onAddMember}>
-          <Text style={styles.addButtonText}>+</Text>
+    <View
+      style={[
+        styles.controlsContainer,
+        {backgroundColor: colors.surface, shadowColor: colors.cardShadow},
+      ]}>
+      <View style={styles.topRow}>
+        <View style={styles.searchRow}>
+          <TextInput
+            style={[
+              styles.searchInput,
+              {
+                backgroundColor: colors.inputBg,
+                borderColor: colors.border,
+                color: colors.text,
+              },
+            ]}
+            placeholder="Buscar por nombre..."
+            placeholderTextColor={colors.textLight}
+            value={searchQuery}
+            onChangeText={onSearchChange}
+          />
+          <TouchableOpacity
+            style={[styles.addButton, {backgroundColor: colors.secondary}]}
+            onPress={onAddMember}>
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={[styles.themeButton, {backgroundColor: colors.inputBg}]}
+          onPress={toggleTheme}>
+          <Text style={{fontSize: 20}}>{isDarkMode ? '🌙' : '☀️'}</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.filtersSection}>
-        <Text style={styles.filterLabel}>Estado</Text>
+        <Text style={[styles.filterLabel, {color: colors.textLight}]}>
+          Estado
+        </Text>
         <View style={styles.filtersRow}>
           <TouchableOpacity
             style={[
               styles.filterBtn,
-              filterStatus === 'ALL' && styles.activeFilter,
+              {backgroundColor: colors.inputBg, borderColor: colors.border},
+              filterStatus === 'ALL' && {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
             ]}
             onPress={() => onFilterStatusChange('ALL')}>
             <Text
               style={[
                 styles.filterText,
+                {color: colors.textLight},
                 filterStatus === 'ALL' && styles.activeFilterText,
               ]}>
               Todos
@@ -62,12 +95,17 @@ const HomeControls: React.FC<HomeControlsProps> = ({
           <TouchableOpacity
             style={[
               styles.filterBtn,
-              filterStatus === 'ACTIVE' && styles.activeFilter,
+              {backgroundColor: colors.inputBg, borderColor: colors.border},
+              filterStatus === 'ACTIVE' && {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
             ]}
             onPress={() => onFilterStatusChange('ACTIVE')}>
             <Text
               style={[
                 styles.filterText,
+                {color: colors.textLight},
                 filterStatus === 'ACTIVE' && styles.activeFilterText,
               ]}>
               Activos
@@ -76,12 +114,17 @@ const HomeControls: React.FC<HomeControlsProps> = ({
           <TouchableOpacity
             style={[
               styles.filterBtn,
-              filterStatus === 'INACTIVE' && styles.activeFilter,
+              {backgroundColor: colors.inputBg, borderColor: colors.border},
+              filterStatus === 'INACTIVE' && {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
             ]}
             onPress={() => onFilterStatusChange('INACTIVE')}>
             <Text
               style={[
                 styles.filterText,
+                {color: colors.textLight},
                 filterStatus === 'INACTIVE' && styles.activeFilterText,
               ]}>
               Inactivos
@@ -91,17 +134,24 @@ const HomeControls: React.FC<HomeControlsProps> = ({
       </View>
 
       <View style={styles.filtersSection}>
-        <Text style={styles.filterLabel}>Pagos</Text>
+        <Text style={[styles.filterLabel, {color: colors.textLight}]}>
+          Pagos
+        </Text>
         <View style={styles.filtersRow}>
           <TouchableOpacity
             style={[
               styles.filterBtn,
-              filterDebt === 'ALL' && styles.activeFilter,
+              {backgroundColor: colors.inputBg, borderColor: colors.border},
+              filterDebt === 'ALL' && {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
             ]}
             onPress={() => onFilterDebtChange('ALL')}>
             <Text
               style={[
                 styles.filterText,
+                {color: colors.textLight},
                 filterDebt === 'ALL' && styles.activeFilterText,
               ]}>
               Todos
@@ -110,12 +160,17 @@ const HomeControls: React.FC<HomeControlsProps> = ({
           <TouchableOpacity
             style={[
               styles.filterBtn,
-              filterDebt === 'DEBT' && styles.activeFilter,
+              {backgroundColor: colors.inputBg, borderColor: colors.border},
+              filterDebt === 'DEBT' && {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
             ]}
             onPress={() => onFilterDebtChange('DEBT')}>
             <Text
               style={[
                 styles.filterText,
+                {color: colors.textLight},
                 filterDebt === 'DEBT' && styles.activeFilterText,
               ]}>
               Deudores
@@ -124,12 +179,17 @@ const HomeControls: React.FC<HomeControlsProps> = ({
           <TouchableOpacity
             style={[
               styles.filterBtn,
-              filterDebt === 'CLEAN' && styles.activeFilter,
+              {backgroundColor: colors.inputBg, borderColor: colors.border},
+              filterDebt === 'CLEAN' && {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
             ]}
             onPress={() => onFilterDebtChange('CLEAN')}>
             <Text
               style={[
                 styles.filterText,
+                {color: colors.textLight},
                 filterDebt === 'CLEAN' && styles.activeFilterText,
               ]}>
               Al día
@@ -143,31 +203,32 @@ const HomeControls: React.FC<HomeControlsProps> = ({
 
 const styles = StyleSheet.create({
   controlsContainer: {
-    backgroundColor: colors.surface,
     padding: 20,
     borderRadius: 16,
     marginBottom: 20,
-    shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 3,
   },
-  searchRow: {
+  topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
     gap: 10,
   },
+  searchRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   searchInput: {
     flex: 1,
-    backgroundColor: colors.inputBg,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
-    color: colors.text,
     marginBottom: 0,
   },
   filtersSection: {
@@ -180,7 +241,6 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.textLight,
     marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -189,32 +249,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: colors.inputBg,
     marginRight: 8,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
-  activeFilter: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
   },
   filterText: {
     fontSize: 14,
-    color: colors.textLight,
     fontWeight: '500',
   },
   activeFilterText: {
     color: '#fff',
   },
   addButton: {
-    backgroundColor: colors.secondary,
     width: 48,
     height: 48,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.secondary,
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -225,6 +276,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     lineHeight: 28,
+  },
+  themeButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
   },
 });
 

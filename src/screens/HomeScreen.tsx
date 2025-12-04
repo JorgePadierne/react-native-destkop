@@ -3,13 +3,13 @@ import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useAuth} from '../context/AuthContext';
+import {useTheme} from '../context/ThemeContext';
 import HomeTable from '../components/HomeTable';
 import HomeControls from '../components/HomeControls';
 import {getIntegrantes} from '../api/integrantes';
 import {Integrante} from '../types';
 import {calculateDebtStatus} from '../utils/finance';
 import {RootStackParamList} from '../../App';
-import {colors} from '../theme/colors';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -21,6 +21,7 @@ const LogoutButton = ({onPress}: {onPress: () => void}) => (
 
 const HomeScreen: React.FC = () => {
   const {logout} = useAuth();
+  const {colors, toggleTheme, isDarkMode} = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   useLayoutEffect(() => {
@@ -110,7 +111,7 @@ const HomeScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       <HomeControls
         searchQuery={searchQuery}
         onSearchChange={handleSearch}
@@ -119,6 +120,9 @@ const HomeScreen: React.FC = () => {
         onFilterStatusChange={handleStatusFilter}
         filterDebt={filterDebt}
         onFilterDebtChange={handleDebtFilter}
+        colors={colors}
+        toggleTheme={toggleTheme}
+        isDarkMode={isDarkMode}
       />
 
       <HomeTable integrantes={filteredIntegrantes} loading={loading} />
@@ -129,7 +133,7 @@ const HomeScreen: React.FC = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, padding: 20, backgroundColor: colors.background},
+  container: {flex: 1, padding: 20},
   logoutButton: {
     marginRight: 15,
     paddingVertical: 6,

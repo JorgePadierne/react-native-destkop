@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import {colors} from '../theme/colors';
 import {Integrante} from '../types';
+import {useTheme} from '../context/ThemeContext';
 
 interface MemberInfoCardProps {
   integrante: Integrante;
@@ -24,75 +24,106 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
   onSave,
   onDelete,
 }) => {
-  const [nombre, setNombre] = useState(integrante.nombre);
-  const [alta, setAlta] = useState(integrante.alta);
-  const [baja, setBaja] = useState<string | null>(integrante.baja || null);
-
-  useEffect(() => {
-    setNombre(integrante.nombre);
-    setAlta(integrante.alta);
-    setBaja(integrante.baja || null);
-  }, [integrante]);
+  const {colors} = useTheme();
+  const [editName, setEditName] = React.useState(integrante.nombre);
+  const [editAlta, setEditAlta] = React.useState(integrante.alta);
 
   const handleSavePress = () => {
-    onSave({nombre, alta, baja});
+    onSave({
+      nombre: editName,
+      alta: editAlta,
+      baja: integrante.baja || null,
+    });
   };
 
   return (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        {backgroundColor: colors.surface, shadowColor: colors.cardShadow},
+      ]}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Información Personal</Text>
-        <TouchableOpacity onPress={isEditing ? handleSavePress : onEditToggle}>
-          <Text style={styles.editButton}>
+        <Text style={[styles.sectionTitle, {color: colors.text}]}>
+          Información Personal
+        </Text>
+        <TouchableOpacity
+          style={[
+            styles.editButton,
+            {backgroundColor: isEditing ? colors.secondary : colors.primary},
+          ]}
+          onPress={isEditing ? handleSavePress : onEditToggle}>
+          <Text style={styles.editButtonText}>
             {isEditing ? 'Guardar' : 'Editar'}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.fieldRow}>
-        <Text style={styles.label}>Nombre</Text>
+      <View style={styles.infoRow}>
+        <Text style={[styles.label, {color: colors.textLight}]}>Nombre:</Text>
         {isEditing ? (
           <TextInput
-            style={styles.input}
-            value={nombre}
-            onChangeText={setNombre}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBg,
+                color: colors.text,
+                borderColor: colors.border,
+              },
+            ]}
+            value={editName}
+            onChangeText={setEditName}
           />
         ) : (
-          <Text style={styles.value}>{integrante.nombre}</Text>
+          <Text style={[styles.value, {color: colors.text}]}>
+            {integrante.nombre}
+          </Text>
         )}
       </View>
 
-      <View style={styles.fieldRow}>
-        <Text style={styles.label}>Fecha de Alta</Text>
+      <View style={styles.infoRow}>
+        <Text style={[styles.label, {color: colors.textLight}]}>
+          Fecha de Alta:
+        </Text>
         {isEditing ? (
           <TextInput
-            style={styles.input}
-            value={alta}
-            onChangeText={setAlta}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBg,
+                color: colors.text,
+                borderColor: colors.border,
+              },
+            ]}
+            value={editAlta}
+            onChangeText={setEditAlta}
             placeholder="YYYY-MM-DD"
+            placeholderTextColor={colors.textLight}
           />
         ) : (
-          <Text style={styles.value}>{integrante.alta}</Text>
+          <Text style={[styles.value, {color: colors.text}]}>
+            {integrante.alta}
+          </Text>
         )}
       </View>
 
-      <View style={styles.fieldRow}>
-        <Text style={styles.label}>Fecha de Baja</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.input}
-            value={baja || ''}
-            onChangeText={setBaja}
-            placeholder="YYYY-MM-DD (Opcional)"
-          />
-        ) : (
-          <Text style={styles.value}>{integrante.baja || '-'}</Text>
-        )}
-      </View>
+      {integrante.baja && (
+        <View style={styles.infoRow}>
+          <Text style={[styles.label, {color: colors.textLight}]}>
+            Fecha de Baja:
+          </Text>
+          <Text style={[styles.value, {color: colors.danger}]}>
+            {integrante.baja}
+          </Text>
+        </View>
+      )}
 
-      {!isEditing && !integrante.baja && (
-        <TouchableOpacity style={styles.bajaButton} onPress={onDelete}>
-          <Text style={styles.bajaButtonText}>Dar de Baja</Text>
+      {isEditing && !integrante.baja && (
+        <TouchableOpacity
+          style={[styles.deleteButton, {borderColor: colors.danger}]}
+          onPress={onDelete}>
+          <Text style={[styles.deleteButtonText, {color: colors.danger}]}>
+            Dar de Baja
+          </Text>
         </TouchableOpacity>
       )}
     </View>
@@ -101,74 +132,61 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
     marginHorizontal: 20,
     marginBottom: 20,
-    borderRadius: 16,
     padding: 20,
-    shadowColor: '#000',
+    borderRadius: 16,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 3,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 15,
   },
   editButton: {
-    color: colors.primary,
-    fontWeight: 'bold',
-    fontSize: 14,
-    backgroundColor: '#E0E7FF',
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 6,
-    borderRadius: 8,
-    overflow: 'hidden',
+    borderRadius: 20,
   },
-  fieldRow: {
-    marginBottom: 16,
+  editButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  infoRow: {
+    marginBottom: 12,
   },
   label: {
     fontSize: 12,
-    fontWeight: '600',
-    color: colors.textLight,
     marginBottom: 4,
-    textTransform: 'uppercase',
   },
   value: {
     fontSize: 16,
-    color: colors.text,
     fontWeight: '500',
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 8,
-    padding: 10,
+    padding: 8,
     fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.inputBg,
   },
-  bajaButton: {
-    backgroundColor: '#FEE2E2',
-    padding: 14,
-    borderRadius: 12,
+  deleteButton: {
+    marginTop: 20,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
     alignItems: 'center',
-    marginTop: 10,
   },
-  bajaButtonText: {
-    color: colors.danger,
+  deleteButtonText: {
     fontWeight: 'bold',
-    fontSize: 16,
   },
 });
 

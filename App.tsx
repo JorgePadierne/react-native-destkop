@@ -1,13 +1,16 @@
-// App.tsx
 import React from 'react';
-import {colors} from './src/theme/colors';
-import {NavigationContainer} from '@react-navigation/native';
+import {
+  NavigationContainer,
+  DefaultTheme,
+  DarkTheme,
+} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import MemberDetailsScreen from './src/screens/MemberDetailsScreen';
 import AddMemberScreen from './src/screens/AddMemberScreen';
 import {AuthProvider, useAuth} from './src/context/AuthContext';
+import {ThemeProvider, useTheme} from './src/context/ThemeContext';
 
 // Tipado de las pantallas del stack
 export type RootStackParamList = {
@@ -21,9 +24,12 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 const RootNavigator: React.FC = () => {
   const {user} = useAuth();
+  const {colors, isDarkMode} = useTheme();
+
+  const navigationTheme = isDarkMode ? DarkTheme : DefaultTheme;
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       <Stack.Navigator
         screenOptions={{
           headerStyle: {
@@ -71,7 +77,9 @@ const RootNavigator: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <RootNavigator />
+      <ThemeProvider>
+        <RootNavigator />
+      </ThemeProvider>
     </AuthProvider>
   );
 };

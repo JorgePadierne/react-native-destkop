@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {colors} from '../theme/colors';
 import {CuotasPorAnio} from '../types';
+import {useTheme} from '../context/ThemeContext';
 
 interface PaymentGridProps {
   cuotasPorAnio: CuotasPorAnio[];
@@ -12,6 +12,7 @@ const PaymentGrid: React.FC<PaymentGridProps> = ({
   cuotasPorAnio,
   onTogglePayment,
 }) => {
+  const {colors} = useTheme();
   const months = [
     'Ene',
     'Feb',
@@ -28,21 +29,36 @@ const PaymentGrid: React.FC<PaymentGridProps> = ({
   ];
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.sectionTitle}>Control de Cuotas</Text>
+    <View
+      style={[
+        styles.card,
+        {backgroundColor: colors.surface, shadowColor: colors.cardShadow},
+      ]}>
+      <Text style={[styles.sectionTitle, {color: colors.text}]}>
+        Control de Cuotas
+      </Text>
       {cuotasPorAnio.map((anioData, anioIndex) => (
         <View key={anioData.anio} style={styles.yearContainer}>
-          <Text style={styles.yearTitle}>{anioData.anio}</Text>
+          <Text style={[styles.yearTitle, {color: colors.text}]}>
+            {anioData.anio}
+          </Text>
           <View style={styles.monthsGrid}>
             {anioData.meses.map((pagado: boolean, monthIndex: number) => (
               <TouchableOpacity
                 key={monthIndex}
-                style={[styles.monthBox, pagado ? styles.paid : styles.unpaid]}
+                style={[
+                  styles.monthBox,
+                  pagado
+                    ? {backgroundColor: colors.secondary}
+                    : {backgroundColor: colors.inputBg},
+                ]}
                 onPress={() => onTogglePayment(anioIndex, monthIndex)}>
                 <Text
                   style={[
                     styles.monthText,
-                    pagado ? styles.paidText : styles.unpaidText,
+                    pagado
+                      ? {color: '#fff', fontWeight: 'bold'}
+                      : {color: colors.textLight},
                   ]}>
                   {months[monthIndex]}
                 </Text>
@@ -57,28 +73,26 @@ const PaymentGrid: React.FC<PaymentGridProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
     marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
+    marginBottom: 30,
     padding: 20,
-    shadowColor: '#000',
+    borderRadius: 16,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 3,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 15,
+    marginBottom: 16,
   },
-  yearContainer: {marginBottom: 20},
+  yearContainer: {
+    marginBottom: 20,
+  },
   yearTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text,
+    fontWeight: '600',
     marginBottom: 10,
   },
   monthsGrid: {
@@ -90,24 +104,12 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 8,
-    alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-  },
-  paid: {
-    backgroundColor: '#D1FAE5', // Emerald 100
-    borderColor: colors.secondary,
-  },
-  unpaid: {
-    backgroundColor: '#FEE2E2', // Red 100
-    borderColor: colors.danger,
+    alignItems: 'center',
   },
   monthText: {
-    fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 10,
   },
-  paidText: {color: '#065F46'}, // Emerald 800
-  unpaidText: {color: '#991B1B'}, // Red 800
 });
 
 export default PaymentGrid;

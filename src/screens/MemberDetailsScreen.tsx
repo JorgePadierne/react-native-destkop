@@ -6,7 +6,6 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {colors} from '../theme/colors';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../App';
@@ -15,6 +14,7 @@ import {Integrante} from '../types';
 import MemberHeader from '../components/MemberHeader';
 import MemberInfoCard from '../components/MemberInfoCard';
 import PaymentGrid from '../components/PaymentGrid';
+import {useTheme} from '../context/ThemeContext';
 
 type MemberDetailsRouteProp = RouteProp<RootStackParamList, 'MemberDetails'>;
 type MemberDetailsNavigationProp = StackNavigationProp<
@@ -26,6 +26,7 @@ const MemberDetailsScreen = () => {
   const route = useRoute<MemberDetailsRouteProp>();
   const navigation = useNavigation<MemberDetailsNavigationProp>();
   const {integranteId} = route.params;
+  const {colors} = useTheme();
 
   const [integrante, setIntegrante] = useState<Integrante | null>(null);
   const [loading, setLoading] = useState(true);
@@ -131,7 +132,7 @@ const MemberDetailsScreen = () => {
   if (loading && !integrante) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0052A5" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -141,7 +142,8 @@ const MemberDetailsScreen = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       <MemberHeader integrante={integrante} />
 
       <MemberInfoCard
@@ -161,7 +163,7 @@ const MemberDetailsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: colors.background},
+  container: {flex: 1},
   center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
 });
 

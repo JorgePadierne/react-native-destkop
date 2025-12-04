@@ -1,79 +1,111 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {colors} from '../theme/colors';
 import {Integrante} from '../types';
+import {useTheme} from '../context/ThemeContext';
 
 interface MemberHeaderProps {
   integrante: Integrante;
 }
 
 const MemberHeader: React.FC<MemberHeaderProps> = ({integrante}) => {
+  const {colors} = useTheme();
+
   return (
-    <View style={styles.headerCard}>
-      <View style={styles.avatarContainer}>
+    <View
+      style={[
+        styles.headerCard,
+        {
+          backgroundColor: colors.surface,
+          shadowColor: colors.cardShadow,
+        },
+      ]}>
+      <View
+        style={[styles.avatarPlaceholder, {backgroundColor: colors.primary}]}>
         <Text style={styles.avatarText}>
           {integrante.nombre.charAt(0).toUpperCase()}
         </Text>
       </View>
-      <Text style={styles.headerName}>{integrante.nombre}</Text>
-      <Text
-        style={[
-          styles.statusBadge,
-          integrante.baja ? styles.statusInactive : styles.statusActive,
-        ]}>
-        {integrante.baja ? 'INACTIVO' : 'ACTIVO'}
-      </Text>
+      <View style={styles.headerInfo}>
+        <Text style={[styles.name, {color: colors.text}]}>
+          {integrante.nombre}
+        </Text>
+        <View
+          style={[
+            styles.statusBadge,
+            integrante.baja ? styles.statusInactive : styles.statusActive,
+            {
+              backgroundColor: integrante.baja
+                ? '#FEE2E2'
+                : colors.secondary + '20', // 20% opacity
+            },
+          ]}>
+          <Text
+            style={[
+              styles.statusText,
+              integrante.baja
+                ? styles.statusTextInactive
+                : {color: colors.secondary},
+            ]}>
+            {integrante.baja ? 'INACTIVO' : 'ACTIVO'}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   headerCard: {
-    backgroundColor: colors.primary,
-    padding: 30,
+    flexDirection: 'row',
     alignItems: 'center',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    marginBottom: 20,
-    shadowColor: colors.primary,
+    padding: 20,
+    margin: 20,
+    borderRadius: 20,
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
     elevation: 5,
   },
-  avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+  avatarPlaceholder: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.5)',
+    marginRight: 16,
   },
   avatarText: {
-    fontSize: 36,
-    fontWeight: 'bold',
     color: '#fff',
-  },
-  headerName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 5,
+  },
+  headerInfo: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 4,
   },
   statusBadge: {
-    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    overflow: 'hidden',
+  },
+  statusActive: {
+    // Dynamic background handled in component
+  },
+  statusInactive: {
+    // Dynamic background handled in component
+  },
+  statusText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#fff',
   },
-  statusActive: {backgroundColor: colors.secondary},
-  statusInactive: {backgroundColor: colors.danger},
+  statusTextInactive: {
+    color: '#EF4444',
+  },
 });
 
 export default MemberHeader;
