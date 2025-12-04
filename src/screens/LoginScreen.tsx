@@ -6,12 +6,15 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../App';
 import {useAuth} from '../context/AuthContext';
-import AnimatedPressable from '../components/AnimatedPressable';
+import {colors} from '../theme/colors';
 
 interface Props {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -29,43 +32,60 @@ const LoginScreen: React.FC<Props> = () => {
       setError(null);
       await login(usuario, contraseña);
     } catch (e) {
-      setError('No se pudo iniciar sesión');
+      setError('Credenciales incorrectas');
     }
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Iniciar sesión</Text>
-        <TextInput
-          placeholder="Usuario"
-          value={usuario}
-          onChangeText={setUsuario}
-          style={styles.input}
-          placeholderTextColor="#666"
-          autoCapitalize="none"
-        />
-        <TextInput
-          placeholder="Contraseña"
-          value={contraseña}
-          onChangeText={setContraseña}
-          style={styles.input}
-          placeholderTextColor="#666"
-          secureTextEntry
-        />
+        <View style={styles.headerContainer}>
+          <Text style={styles.logoText}>AT</Text>
+        </View>
+        <Text style={styles.title}>Bienvenido</Text>
+        <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Usuario</Text>
+          <TextInput
+            placeholder="Ingresa tu usuario"
+            value={usuario}
+            onChangeText={setUsuario}
+            style={styles.input}
+            placeholderTextColor={colors.textLight}
+            autoCapitalize="none"
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Contraseña</Text>
+          <TextInput
+            placeholder="Ingresa tu contraseña"
+            value={contraseña}
+            onChangeText={setContraseña}
+            style={styles.input}
+            placeholderTextColor={colors.textLight}
+            secureTextEntry
+          />
+        </View>
+
         {error && <Text style={styles.errorText}>{error}</Text>}
-        {loading ? (
-          <ActivityIndicator size="small" color="#0052A5" />
-        ) : (
-          <AnimatedPressable
-            onPress={handleLogin}
-            style={styles.pressable}
-            pressedOpacity={0.4}>
-            <Text style={styles.text}>Entrar</Text>
-          </AnimatedPressable>
-        )}
+
+        <TouchableOpacity
+          onPress={handleLogin}
+          style={styles.loginButton}
+          disabled={loading}
+          activeOpacity={0.8}>
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+          )}
+        </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -76,50 +96,96 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.background,
     padding: 20,
-    backgroundColor: '#E8F4FF',
-  },
-  text: {color: 'white', textAlign: 'center'},
-  pressable: {
-    backgroundColor: '#0052A5',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-    color: '#0052A5',
-  },
-  input: {
-    borderWidth: 1,
-    width: '50%',
-    borderColor: '#023e7bff',
-    marginBottom: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    color: '#000000',
   },
   card: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    padding: 32,
+    shadowColor: colors.primary,
+    shadowOffset: {width: 0, height: 10},
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
     alignItems: 'center',
-    justifyContent: 'center',
-    width: '90%',
-    height: '70%',
-    maxWidth: 500,
-    maxHeight: 350,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 20,
-    paddingHorizontal: 18,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
   },
-  errorText: {color: '#D72638', marginBottom: 10, textAlign: 'center'},
+  headerContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: colors.primary,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  logoText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textLight,
+    marginBottom: 32,
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  input: {
+    width: '100%',
+    backgroundColor: colors.inputBg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: colors.text,
+  },
+  errorText: {
+    color: colors.danger,
+    marginBottom: 20,
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  loginButton: {
+    width: '100%',
+    backgroundColor: colors.primary,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+    marginTop: 10,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });

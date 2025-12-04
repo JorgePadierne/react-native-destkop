@@ -1,123 +1,199 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  ActivityIndicator,
   FlatList,
   StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
-import {getIntegrantes} from '../api/integrantes';
-import IntegranteItem from '../components/IntegranteItem';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 import {Integrante} from '../types';
+import {RootStackParamList} from '../../App';
+import {colors} from '../theme/colors';
+import {calculateDebtStatus} from '../utils/finance';
 
-function HomeTable() {
-  const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+interface HomeTableProps {
+  integrantes: Integrante[];
+  loading: boolean;
+}
 
-  useEffect(() => {
-    const cargarIntegrantes = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getIntegrantes();
-        setIntegrantes(data);
-      } catch (e) {
-        setError('Error al cargar los integrantes');
-      } finally {
-        setLoading(false);
-      }
-    };
-    cargarIntegrantes();
-  }, []);
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
+function HomeTable({integrantes, loading}: HomeTableProps) {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
+  const renderItem = ({item}: {item: Integrante}) => {
+    const status = calculateDebtStatus(item);
+    const isClean = status === 'AL_DIA';
+
+    return (
+      <View style={styles.rowContainer}>
+        <View style={styles.statusCell}>
+          <View
+            style={[
+              styles.statusIndicator,
+              isClean ? styles.statusClean : styles.statusDebt,
+            ]}
+          />
+        </View>
+        <Text style={styles.nameCell} numberOfLines={1}>
+          {item.nombre}
+        </Text>
+        <View style={styles.actionCell}>
+          <TouchableOpacity
+            style={styles.detailsButton}
+            onPress={() =>
+              navigation.navigate('MemberDetails', {integranteId: item.id})
+            }>
+            <Text style={styles.detailsButtonText}>Ver</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  if (loading && integrantes.length === 0) {
+    return (
+      <View style={styles.centerContent}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Cargando integrantes...</Text>
+      </View>
+    );
+  }
 
   return (
-    <View>
-      {loading && (
-        <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#0052A5" />
-          <Text style={styles.loadingText}>Cargando integrantes...</Text>
-        </View>
-      )}
-      <View style={styles.listContainer}>
-        <View style={styles.tableContainer}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.tableSubtitle}>Nombre Completo</Text>
-            <Text style={styles.tableSubtitle}>Fecha de Alta</Text>
-            <Text style={styles.tableSubtitle}>Fecha de Baja</Text>
-            <Text style={styles.tableSubtitle}>Estado de Pago</Text>
-            <Text style={styles.tableSubtitle}>Acciones</Text>
-          </View>
-        </View>
-
-        {!loading && (
-          <View style={styles.listContainer}>
-            {integrantes.length === 0 ? (
-              <Text style={styles.emptyText}>
-                Aún no hay integrantes, agrega el primero.
-              </Text>
-            ) : (
-              <FlatList
-                data={integrantes}
-                keyExtractor={item => item.id.toString()}
-                renderItem={({item}) => <IntegranteItem integrante={item} />}
-              />
-            )}
-          </View>
-        )}
+    <View style={styles.listContainer}>
+      <View style={styles.tableHeader}>
+        <Text style={[styles.headerText, styles.statusHeader]}>Estado</Text>
+        <Text style={[styles.headerText, styles.nameHeader]}>Nombre</Text>
+        <Text style={[styles.headerText, styles.actionHeader]}>Acción</Text>
       </View>
+
+      {integrantes.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No se encontraron integrantes.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={integrantes}
+          keyExtractor={item => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.flatListContent}
+        />
+      )}
     </View>
   );
 }
+
 const styles = StyleSheet.create({
+  listContainer: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
   centerContent: {
-    marginTop: 20,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 50,
   },
   loadingText: {
     marginTop: 10,
-    color: '#0052A5',
-  },
-  listContainer: {
-    marginTop: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 30,
-    paddingBottom: 40,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  tableContainer: {
-    paddingLeft: 16,
+    color: colors.textLight,
   },
   tableHeader: {
     flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingBottom: 12,
+    marginBottom: 8,
     alignItems: 'center',
-    marginTop: 12,
-    marginBottom: 8,
   },
-  tableTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 8,
-    color: '#000000ff',
+  headerText: {
+    fontWeight: 'bold',
+    color: colors.textLight,
+    fontSize: 12,
+    textTransform: 'uppercase',
   },
-
-  tableSubtitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#000000ff',
+  statusHeader: {
+    width: 60,
     textAlign: 'center',
+  },
+  nameHeader: {
     flex: 1,
+    paddingLeft: 10,
+  },
+  actionHeader: {
+    width: 60,
+    textAlign: 'center',
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+    backgroundColor: colors.inputBg,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  statusCell: {
+    width: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  statusClean: {
+    backgroundColor: colors.secondary, // Green
+  },
+  statusDebt: {
+    backgroundColor: colors.danger, // Red
+  },
+  nameCell: {
+    flex: 1,
+    fontSize: 16,
+    color: colors.text,
+    paddingLeft: 10,
+    fontWeight: '500',
+  },
+  actionCell: {
+    width: 60,
+    alignItems: 'center',
+  },
+  detailsButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  detailsButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: 'center',
   },
   emptyText: {
-    textAlign: 'center',
-    marginVertical: 16,
-    color: '#666',
+    color: colors.textLight,
+    fontSize: 16,
+  },
+  flatListContent: {
+    paddingBottom: 20,
   },
 });
 
