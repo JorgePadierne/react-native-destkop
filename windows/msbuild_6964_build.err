@@ -1,0 +1,1 @@
+Package.appxmanifest(41,110): error APPX3207: El manifiesto de la aplicación hace referencia a la imagen 'Assets\LargeTile.scale-400.png' de logotipo cuadrado de 310 x 310, que es mayor que el tamaño máximo de archivo de imagen. No debe tener más de 204,800 bytes. [C:\Users\jorge\Desktop\react-native-destkop\windows\tocororo\tocororo.vcxproj]

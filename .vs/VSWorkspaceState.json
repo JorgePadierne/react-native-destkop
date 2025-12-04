@@ -1,6 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\windows",
+    "\\windows\\tocororo",
+    "\\windows\\tocororo\\Assets"
   ],
+  "SelectedNode": "\\windows\\tocororo\\Assets\\SplashScreen.scale-200.png",
   "PreviewInSolutionExplorer": false
 }

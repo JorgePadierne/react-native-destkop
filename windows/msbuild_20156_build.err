@@ -1,0 +1,1 @@
+Package.appxmanifest(41,110): error APPX1619: El manifiesto de la aplicación hace referencia a la imagen 'Assets\LargeTile.scale-400.png' de logotipo cuadrado de 310 x 310 cuyas dimensiones no son válidas. Estas deben ser de 1240x1240 píxeles. [C:\Users\jorge\Desktop\react-native-destkop\windows\tocororo\tocororo.vcxproj]
