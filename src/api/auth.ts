@@ -1,27 +1,37 @@
 // /src/api/auth.ts
-// API mock en memoria para autenticación
-
 import {LoginResponse} from '../types';
+import {AxiosInstance} from 'axios';
 
-const simulateDelay = (ms: number) =>
-  new Promise(resolve => setTimeout(resolve, ms));
+export const createAuthApi = (axiosInstance: AxiosInstance) => ({
+  login: async (
+    nombreAdmin: string,
+    password: string,
+  ): Promise<LoginResponse> => {
+    try {
+      console.log('LOGIN: Calling /auth/login with:', nombreAdmin);
+      const response = await axiosInstance.post('/auth/login', {
+        nombre_admin: nombreAdmin,
+        password: password,
+      });
+      console.log('LOGIN: Response received:', response.data);
+      console.log('LOGIN: Access token:', response.data.access_token);
 
-export const login = async (
-  usuario: string,
-  contraseña: string,
-): Promise<LoginResponse> => {
-  await simulateDelay(400);
-
-  // Mock muy simple: acepta cualquier usuario/contraseña no vacíos
-  if (!usuario || !contraseña) {
-    throw new Error('Usuario o contraseña inválidos');
-  }
-
-  return {
-    token: 'mock-token-' + Date.now().toString(),
-    user: {
-      id: '1',
-      username: usuario,
-    },
-  };
-};
+      // The API returns { access_token: string }
+      // Map it to our LoginResponse format
+      const loginResponse = {
+        token: response.data.access_token,
+        user: {
+          id: nombreAdmin, // Using nombre_admin as ID for now
+          username: nombreAdmin,
+        },
+      };
+      console.log('LOGIN: Returning token:', loginResponse.token);
+      return loginResponse;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Credenciales incorrectas');
+      }
+      throw new Error('Error al iniciar sesión');
+    }
+  },
+});

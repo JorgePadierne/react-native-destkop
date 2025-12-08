@@ -23,14 +23,14 @@ interface Props {
 
 const LoginScreen: React.FC<Props> = () => {
   const {login, loading} = useAuth();
-  const [usuario, setUsuario] = useState('');
+  const [nombreAdmin, setNombreAdmin] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async () => {
     try {
       setError(null);
-      await login(usuario, contraseña);
+      await login(nombreAdmin, contraseña);
     } catch (e) {
       setError('Credenciales incorrectas');
     }
@@ -48,11 +48,11 @@ const LoginScreen: React.FC<Props> = () => {
         <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Usuario</Text>
+          <Text style={styles.label}>Nombre Admin</Text>
           <TextInput
-            placeholder="Ingresa tu usuario"
-            value={usuario}
-            onChangeText={setUsuario}
+            placeholder="Ingresa tu nombre de administrador"
+            value={nombreAdmin}
+            onChangeText={setNombreAdmin}
             style={styles.input}
             placeholderTextColor={colors.textLight}
             autoCapitalize="none"

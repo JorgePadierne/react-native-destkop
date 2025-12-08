@@ -1,31 +1,42 @@
 // /src/types/index.ts
-export interface CuotasPorAnio {
-  anio: number;
-  meses: boolean[]; // 12 posiciones, de Enero a Diciembre
+
+// Payment structure from API
+export interface Pago {
+  id: number;
+  id_persona: number;
+  mes_anio_tmp: string; // ISO timestamp string
+  monto: string; // String representation of decimal
 }
 
+// Main member/asociado interface matching API response
 export interface Integrante {
-  id: string;
-  nombre: string;
-  alta: string;
-  baja?: string | null;
-  cuotasPorAnio: CuotasPorAnio[];
+  id_asociado: number;
+  nombre_apellidos: string;
+  fecha_alta_tmp: string; // ISO timestamp string
+  fecha_baja_tmp: string | null; // ISO timestamp string or null
+  todosPagados: boolean;
+  cantidadMesesMorosos: number;
+  mesesMorosos: string[]; // Array of "YYYY-MM" strings
+  totalMeses: number;
+  pagosRealizados: number;
+  pagos: Pago[];
 }
 
-// Datos necesarios para crear un integrante (la API generará el id y las cuotas)
+// Input for creating a new asociado (POST /asociated/create)
 export interface IntegranteCreateInput {
-  nombre: string;
-  alta: string;
-  baja?: string | null;
+  nombre_apellidos: string;
+  fecha_alta_tmp: string; // Format: "YYYY-MM-DD" or ISO timestamp
+  fecha_baja_tmp: string | null;
 }
 
-// Datos que se pueden actualizar de un integrante existente
+// Input for updating an asociado (if needed in the future)
 export interface IntegranteUpdateInput {
-  nombre?: string;
-  alta?: string;
-  baja?: string | null;
+  nombre_apellidos?: string;
+  fecha_alta_tmp?: string;
+  fecha_baja_tmp?: string | null;
 }
 
+// Login response from auth API
 export interface LoginResponse {
   token: string;
   user: {

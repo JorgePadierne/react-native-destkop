@@ -9,12 +9,13 @@ import {
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../App';
-import {getIntegrantes, updateIntegrante} from '../api/integrantes';
+import {createIntegrantesApi} from '../api/integrantes';
 import {Integrante} from '../types';
 import MemberHeader from '../components/MemberHeader';
 import MemberInfoCard from '../components/MemberInfoCard';
-import PaymentGrid from '../components/PaymentGrid';
 import {useTheme} from '../context/ThemeContext';
+import {useAxios} from '../context/AxiosContext';
+import {useAuth} from '../context/AuthContext';
 
 type MemberDetailsRouteProp = RouteProp<RootStackParamList, 'MemberDetails'>;
 type MemberDetailsNavigationProp = StackNavigationProp<
@@ -27,6 +28,12 @@ const MemberDetailsScreen = () => {
   const navigation = useNavigation<MemberDetailsNavigationProp>();
   const {integranteId} = route.params;
   const {colors} = useTheme();
+  const {axiosInstance} = useAxios();
+  const {token} = useAuth();
+  const integrantesApi = React.useMemo(
+    () => createIntegrantesApi(axiosInstance, token),
+    [axiosInstance, token],
+  );
 
   const [integrante, setIntegrante] = useState<Integrante | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,8 +42,7 @@ const MemberDetailsScreen = () => {
   const loadIntegrante = useCallback(async () => {
     setLoading(true);
     try {
-      const all = await getIntegrantes();
-      const found = all.find(i => i.id === integranteId);
+      const found = await integrantesApi.getById(Number(integranteId));
       if (found) {
         setIntegrante(found);
       } else {
@@ -48,53 +54,33 @@ const MemberDetailsScreen = () => {
     } finally {
       setLoading(false);
     }
-  }, [integranteId, navigation]);
+  }, [integranteId, navigation, integrantesApi]);
 
   useEffect(() => {
     loadIntegrante();
   }, [loadIntegrante]);
 
-  const handleSave = async (data: {
-    nombre: string;
-    alta: string;
-    baja: string | null;
+  const handleSave = async (_data: {
+    nombre_apellidos: string;
+    fecha_alta_tmp: string;
+    fecha_baja_tmp: string | null;
   }) => {
     if (!integrante) {
       return;
     }
     try {
       setLoading(true);
-      const updated = await updateIntegrante(integrante.id, data);
-      setIntegrante(updated);
+      // For now, we reload after save since update endpoint might not exist
+      // You may need to implement PUT /asociated/update/{id} in your backend
+      Alert.alert(
+        'Información',
+        'La funcionalidad de edición requiere un endpoint de actualización en el backend',
+      );
       setIsEditing(false);
-      Alert.alert('Éxito', 'Datos actualizados correctamente');
     } catch (error) {
       Alert.alert('Error', 'No se pudo actualizar');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const togglePayment = async (anioIndex: number, monthIndex: number) => {
-    if (!integrante) {
-      return;
-    }
-
-    // Deep copy to avoid direct mutation issues
-    const newCuotas = JSON.parse(JSON.stringify(integrante.cuotasPorAnio));
-    newCuotas[anioIndex].meses[monthIndex] =
-      !newCuotas[anioIndex].meses[monthIndex];
-
-    try {
-      // Optimistic update locally
-      const updated = {...integrante, cuotasPorAnio: newCuotas};
-      setIntegrante(updated);
-
-      // Persist
-      await updateIntegrante(integrante.id, {cuotasPorAnio: newCuotas});
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo actualizar el pago');
-      loadIntegrante(); // Revert on error
     }
   };
 
@@ -108,16 +94,12 @@ const MemberDetailsScreen = () => {
           text: 'Confirmar',
           style: 'destructive',
           onPress: async () => {
-            const today = new Date().toISOString().split('T')[0];
             if (integrante) {
               try {
-                const updated = await updateIntegrante(integrante.id, {
-                  baja: today,
-                });
-                setIntegrante(updated);
+                // This requires an update endpoint in the backend
                 Alert.alert(
                   'Información',
-                  'El integrante ha sido dado de baja.',
+                  'La funcionalidad de dar de baja requiere un endpoint de actualización',
                 );
               } catch (e) {
                 Alert.alert('Error', 'No se pudo dar de baja');
@@ -154,10 +136,11 @@ const MemberDetailsScreen = () => {
         onDelete={handleBaja}
       />
 
-      <PaymentGrid
+      {/* Payment grid temporarily disabled - requires implementation with POST /payments/create */}
+      {/* <PaymentGrid
         cuotasPorAnio={integrante.cuotasPorAnio}
         onTogglePayment={togglePayment}
-      />
+      />  */}
     </ScrollView>
   );
 };

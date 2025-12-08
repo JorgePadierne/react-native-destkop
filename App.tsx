@@ -11,12 +11,13 @@ import MemberDetailsScreen from './src/screens/MemberDetailsScreen';
 import AddMemberScreen from './src/screens/AddMemberScreen';
 import {AuthProvider, useAuth} from './src/context/AuthContext';
 import {ThemeProvider, useTheme} from './src/context/ThemeContext';
+import {AxiosProvider} from './src/context/AxiosContext';
 
 // Tipado de las pantallas del stack
 export type RootStackParamList = {
   Home: undefined;
   Login: undefined;
-  MemberDetails: {integranteId: string};
+  MemberDetails: {integranteId: number};
   AddMember: undefined;
 };
 
@@ -76,11 +77,13 @@ const RootNavigator: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <RootNavigator />
-      </ThemeProvider>
-    </AuthProvider>
+    <AxiosProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <RootNavigator />
+        </ThemeProvider>
+      </AuthProvider>
+    </AxiosProvider>
   );
 };
 

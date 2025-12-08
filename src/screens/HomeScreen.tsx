@@ -1,12 +1,13 @@
-import React, {useCallback, useState, useLayoutEffect} from 'react';
+import React, {useCallback, useState, useLayoutEffect, useMemo} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useAuth} from '../context/AuthContext';
+import {useAxios} from '../context/AxiosContext';
 import {useTheme} from '../context/ThemeContext';
 import HomeTable from '../components/HomeTable';
 import HomeControls from '../components/HomeControls';
-import {getIntegrantes} from '../api/integrantes';
+import {createIntegrantesApi} from '../api/integrantes';
 import {Integrante} from '../types';
 import {calculateDebtStatus} from '../utils/finance';
 import {RootStackParamList} from '../../App';
@@ -20,9 +21,14 @@ const LogoutButton = ({onPress}: {onPress: () => void}) => (
 );
 
 const HomeScreen: React.FC = () => {
-  const {logout} = useAuth();
+  const {logout, token} = useAuth();
+  const {axiosInstance} = useAxios();
   const {colors, toggleTheme, isDarkMode} = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const integrantesApi = useMemo(
+    () => createIntegrantesApi(axiosInstance, token),
+    [axiosInstance, token],
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -54,15 +60,15 @@ const HomeScreen: React.FC = () => {
       // Search by name
       if (query) {
         result = result.filter(i =>
-          i.nombre.toLowerCase().includes(query.toLowerCase()),
+          i.nombre_apellidos.toLowerCase().includes(query.toLowerCase()),
         );
       }
 
       // Filter by Active/Inactive (Baja)
       if (status === 'ACTIVE') {
-        result = result.filter(i => !i.baja);
+        result = result.filter(i => !i.fecha_baja_tmp);
       } else if (status === 'INACTIVE') {
-        result = result.filter(i => i.baja);
+        result = result.filter(i => i.fecha_baja_tmp);
       }
 
       // Filter by Debt
@@ -82,7 +88,7 @@ const HomeScreen: React.FC = () => {
       const loadData = async () => {
         setLoading(true);
         try {
-          const data = await getIntegrantes();
+          const data = await integrantesApi.getAll();
           setIntegrantes(data);
           applyFilters(data, searchQuery, filterStatus, filterDebt);
         } catch (error) {
@@ -92,7 +98,7 @@ const HomeScreen: React.FC = () => {
         }
       };
       loadData();
-    }, [applyFilters, searchQuery, filterStatus, filterDebt]),
+    }, [applyFilters, searchQuery, filterStatus, filterDebt, integrantesApi]),
   );
 
   const handleSearch = (text: string) => {

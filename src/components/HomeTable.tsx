@@ -53,16 +53,18 @@ const HomeTable: React.FC<HomeTableProps> = ({integrantes, loading}) => {
         {/* Name */}
         <View style={styles.nameCell}>
           <Text style={[styles.nameText, {color: colors.text}]}>
-            {item.nombre}
+            {item.nombre_apellidos}
           </Text>
-          {item.baja && <Text style={styles.bajaTag}>BAJA</Text>}
+          {item.fecha_baja_tmp && <Text style={styles.bajaTag}>BAJA</Text>}
         </View>
 
         {/* Action Button */}
         <TouchableOpacity
           style={[styles.actionButton, {backgroundColor: colors.primary}]}
           onPress={() =>
-            navigation.navigate('MemberDetails', {integranteId: item.id})
+            navigation.navigate('MemberDetails', {
+              integranteId: item.id_asociado,
+            })
           }>
           <Text style={styles.actionButtonText}>Ver</Text>
         </TouchableOpacity>
@@ -100,7 +102,7 @@ const HomeTable: React.FC<HomeTableProps> = ({integrantes, loading}) => {
 
       <FlatList
         data={integrantes}
-        keyExtractor={item => item.id}
+        keyExtractor={item => String(item.id_asociado)}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}

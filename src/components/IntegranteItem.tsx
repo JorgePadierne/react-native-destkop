@@ -16,7 +16,7 @@ const IntegranteItem: React.FC<Props> = ({integrante}) => {
       <View style={styles.infoContainer}>
         <View style={styles.headerRow}>
           <Text style={styles.nombre} numberOfLines={1}>
-            {integrante.nombre}
+            {integrante.nombre_apellidos}
           </Text>
           <Text style={styles.nombre}>-</Text>
           <Text style={styles.nombre}>-</Text>

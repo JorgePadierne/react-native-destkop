@@ -13,7 +13,11 @@ interface MemberInfoCardProps {
   integrante: Integrante;
   isEditing: boolean;
   onEditToggle: () => void;
-  onSave: (data: {nombre: string; alta: string; baja: string | null}) => void;
+  onSave: (data: {
+    nombre_apellidos: string;
+    fecha_alta_tmp: string;
+    fecha_baja_tmp: string | null;
+  }) => void;
   onDelete: () => void;
 }
 
@@ -25,14 +29,14 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
   onDelete,
 }) => {
   const {colors} = useTheme();
-  const [editName, setEditName] = React.useState(integrante.nombre);
-  const [editAlta, setEditAlta] = React.useState(integrante.alta);
+  const [editName, setEditName] = React.useState(integrante.nombre_apellidos);
+  const [editAlta, setEditAlta] = React.useState(integrante.fecha_alta_tmp);
 
   const handleSavePress = () => {
     onSave({
-      nombre: editName,
-      alta: editAlta,
-      baja: integrante.baja || null,
+      nombre_apellidos: editName,
+      fecha_alta_tmp: editAlta,
+      fecha_baja_tmp: integrante.fecha_baja_tmp || null,
     });
   };
 
@@ -75,7 +79,7 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
           />
         ) : (
           <Text style={[styles.value, {color: colors.text}]}>
-            {integrante.nombre}
+            {integrante.nombre_apellidos}
           </Text>
         )}
       </View>
@@ -101,23 +105,23 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
           />
         ) : (
           <Text style={[styles.value, {color: colors.text}]}>
-            {integrante.alta}
+            {integrante.fecha_alta_tmp}
           </Text>
         )}
       </View>
 
-      {integrante.baja && (
+      {integrante.fecha_baja_tmp && (
         <View style={styles.infoRow}>
           <Text style={[styles.label, {color: colors.textLight}]}>
             Fecha de Baja:
           </Text>
           <Text style={[styles.value, {color: colors.danger}]}>
-            {integrante.baja}
+            {integrante.fecha_baja_tmp}
           </Text>
         </View>
       )}
 
-      {isEditing && !integrante.baja && (
+      {isEditing && !integrante.fecha_baja_tmp && (
         <TouchableOpacity
           style={[styles.deleteButton, {borderColor: colors.danger}]}
           onPress={onDelete}>

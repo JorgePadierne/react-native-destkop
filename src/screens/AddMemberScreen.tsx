@@ -9,32 +9,42 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {addIntegrante} from '../api/integrantes';
+import {createIntegrantesApi} from '../api/integrantes';
 import {useTheme} from '../context/ThemeContext';
+import {useAxios} from '../context/AxiosContext';
+import {useAuth} from '../context/AuthContext';
 
 const AddMemberScreen = () => {
   const navigation = useNavigation();
   const {colors} = useTheme();
-  const [nombre, setNombre] = useState('');
-  const [alta, setAlta] = useState(new Date().toISOString().split('T')[0]);
+  const {axiosInstance} = useAxios();
+  const {token} = useAuth();
+  const integrantesApi = React.useMemo(
+    () => createIntegrantesApi(axiosInstance, token),
+    [axiosInstance, token],
+  );
+  const [nombreApellidos, setNombreApellidos] = useState('');
+  const [fechaAlta, setFechaAlta] = useState(
+    new Date().toISOString().split('T')[0],
+  );
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-    if (!nombre.trim()) {
+    if (!nombreApellidos.trim()) {
       Alert.alert('Error', 'El nombre es obligatorio');
       return;
     }
-    if (!alta.trim()) {
+    if (!fechaAlta.trim()) {
       Alert.alert('Error', 'La fecha de alta es obligatoria');
       return;
     }
 
     try {
       setLoading(true);
-      await addIntegrante({
-        nombre,
-        alta,
-        baja: null,
+      await integrantesApi.create({
+        nombre_apellidos: nombreApellidos,
+        fecha_alta_tmp: fechaAlta,
+        fecha_baja_tmp: null,
       });
       Alert.alert('Éxito', 'Integrante agregado correctamente', [
         {text: 'OK', onPress: () => navigation.goBack()},
@@ -73,8 +83,8 @@ const AddMemberScreen = () => {
                 color: colors.text,
               },
             ]}
-            value={nombre}
-            onChangeText={setNombre}
+            value={nombreApellidos}
+            onChangeText={setNombreApellidos}
             placeholder="Ej. Juan Perez"
             placeholderTextColor={colors.textLight}
           />
@@ -93,8 +103,8 @@ const AddMemberScreen = () => {
                 color: colors.text,
               },
             ]}
-            value={alta}
-            onChangeText={setAlta}
+            value={fechaAlta}
+            onChangeText={setFechaAlta}
             placeholder="YYYY-MM-DD"
             placeholderTextColor={colors.textLight}
           />

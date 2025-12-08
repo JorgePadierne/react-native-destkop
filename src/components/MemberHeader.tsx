@@ -22,19 +22,21 @@ const MemberHeader: React.FC<MemberHeaderProps> = ({integrante}) => {
       <View
         style={[styles.avatarPlaceholder, {backgroundColor: colors.primary}]}>
         <Text style={styles.avatarText}>
-          {integrante.nombre.charAt(0).toUpperCase()}
+          {integrante.nombre_apellidos.charAt(0).toUpperCase()}
         </Text>
       </View>
       <View style={styles.headerInfo}>
         <Text style={[styles.name, {color: colors.text}]}>
-          {integrante.nombre}
+          {integrante.nombre_apellidos}
         </Text>
         <View
           style={[
             styles.statusBadge,
-            integrante.baja ? styles.statusInactive : styles.statusActive,
+            integrante.fecha_baja_tmp
+              ? styles.statusInactive
+              : styles.statusActive,
             {
-              backgroundColor: integrante.baja
+              backgroundColor: integrante.fecha_baja_tmp
                 ? '#FEE2E2'
                 : colors.secondary + '20', // 20% opacity
             },
@@ -42,11 +44,11 @@ const MemberHeader: React.FC<MemberHeaderProps> = ({integrante}) => {
           <Text
             style={[
               styles.statusText,
-              integrante.baja
+              integrante.fecha_baja_tmp
                 ? styles.statusTextInactive
                 : {color: colors.secondary},
             ]}>
-            {integrante.baja ? 'INACTIVO' : 'ACTIVO'}
+            {integrante.fecha_baja_tmp ? 'INACTIVO' : 'ACTIVO'}
           </Text>
         </View>
       </View>
