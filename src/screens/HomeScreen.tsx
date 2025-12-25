@@ -21,8 +21,8 @@ const LogoutButton = ({onPress}: {onPress: () => void}) => (
 );
 
 const HomeScreen: React.FC = () => {
-  const {logout, token} = useAuth();
-  const {axiosInstance} = useAxios();
+  const {logout} = useAuth();
+  const {axiosInstance, token} = useAxios();
   const {colors, toggleTheme, isDarkMode} = useTheme();
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const integrantesApi = useMemo(
@@ -97,8 +97,20 @@ const HomeScreen: React.FC = () => {
           setLoading(false);
         }
       };
-      loadData();
-    }, [applyFilters, searchQuery, filterStatus, filterDebt, integrantesApi]),
+
+      if (token) {
+        loadData();
+      } else {
+        setLoading(false);
+      }
+    }, [
+      applyFilters,
+      searchQuery,
+      filterStatus,
+      filterDebt,
+      integrantesApi,
+      token,
+    ]),
   );
 
   const handleSearch = (text: string) => {

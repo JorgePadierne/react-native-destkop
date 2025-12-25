@@ -36,6 +36,20 @@ export interface IntegranteUpdateInput {
   fecha_baja_tmp?: string | null;
 }
 
+// Input for creating a new payment (POST /payments/create)
+export interface PagoCreateInput {
+  id_persona: number;
+  mes_anio_tmp: string; // Format: "YYYY-MM"
+  monto: number;
+}
+
+// Input for registering a new admin (POST /auth/register)
+export interface RegisterAdminInput {
+  nombre_admin: string;
+  password: string;
+  role: 'SUPERADMIN' | 'ADMIN' | 'USER';
+}
+
 // Login response from auth API
 export interface LoginResponse {
   token: string;
@@ -43,4 +57,10 @@ export interface LoginResponse {
     id: string;
     username: string;
   };
+}
+
+// Helper type for payment grid
+export interface CuotasPorAnio {
+  anio: number;
+  meses: boolean[]; // 12 elements, true = paid
 }

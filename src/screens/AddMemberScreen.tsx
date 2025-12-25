@@ -12,13 +12,11 @@ import {useNavigation} from '@react-navigation/native';
 import {createIntegrantesApi} from '../api/integrantes';
 import {useTheme} from '../context/ThemeContext';
 import {useAxios} from '../context/AxiosContext';
-import {useAuth} from '../context/AuthContext';
 
 const AddMemberScreen = () => {
   const navigation = useNavigation();
   const {colors} = useTheme();
-  const {axiosInstance} = useAxios();
-  const {token} = useAuth();
+  const {axiosInstance, token} = useAxios();
   const integrantesApi = React.useMemo(
     () => createIntegrantesApi(axiosInstance, token),
     [axiosInstance, token],

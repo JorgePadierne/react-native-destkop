@@ -1,5 +1,9 @@
 // /src/api/integrantes.ts
-import {Integrante, IntegranteCreateInput} from '../types';
+import {
+  Integrante,
+  IntegranteCreateInput,
+  IntegranteUpdateInput,
+} from '../types';
 import {AxiosInstance} from 'axios';
 
 export const createIntegrantesApi = (
@@ -13,23 +17,17 @@ export const createIntegrantesApi = (
      */
     getAll: async (): Promise<Integrante[]> => {
       try {
-        console.log('Calling GET /asociated/getall...');
-        console.log('Token available:', token ? 'YES' : 'NO');
-
         const response = await axiosInstance.get('/asociated/getall', {
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
           },
         });
-
-        console.log('API Response:', response.data);
-        console.log('Response type:', typeof response.data);
-        console.log('Is array:', Array.isArray(response.data));
         return response.data;
       } catch (error: any) {
-        console.error('Error fetching asociados:', error);
-        console.error('Error response:', error.response?.data);
-        console.error('Error status:', error.response?.status);
+        console.error(
+          'Error fetching asociados:',
+          error.response?.data || error.message,
+        );
         throw new Error('Error al obtener los asociados');
       }
     },
@@ -47,8 +45,15 @@ export const createIntegrantesApi = (
         });
         return response.data;
       } catch (error: any) {
-        console.error('Error creating asociado:', error);
-        throw new Error('Error al crear el asociado');
+        console.error('--- ERROR CREATING INTEGRANTE ---');
+        console.error('Payload sent:', input);
+        console.error('Status:', error.response?.status);
+        console.error('Server Message:', error.response?.data);
+
+        throw new Error(
+          error.response?.data?.message ||
+            `Error al crear el asociado (${error.response?.status})`,
+        );
       }
     },
 
@@ -65,7 +70,41 @@ export const createIntegrantesApi = (
         });
       } catch (error: any) {
         console.error('Error deleting asociado:', error);
-        throw new Error('Error al eliminar el asociado');
+        throw new Error('Error al eliminar el asociado:');
+      }
+    },
+
+    /**
+     * Update an asociado by ID
+     * PUT /asociated/update/:id
+     */
+    update: async (
+      id: number,
+      input: IntegranteUpdateInput,
+    ): Promise<Integrante> => {
+      try {
+        console.log('Updating asociado:', id, input);
+        const response = await axiosInstance.put(
+          `/asociated/update/${id}`,
+          input,
+          {
+            headers: {
+              Authorization: token ? `Bearer ${token}` : '',
+            },
+          },
+        );
+        console.log('Asociado updated:', response.data);
+        return response.data;
+      } catch (error: any) {
+        console.error('Error updating asociado:', error);
+        if (error.response?.status === 404) {
+          throw new Error('Asociado no encontrado');
+        }
+        if (error.response?.status === 400) {
+          const message = error.response?.data?.message;
+          throw new Error(message || 'Datos inválidos');
+        }
+        throw new Error('Error al actualizar el asociado');
       }
     },
 

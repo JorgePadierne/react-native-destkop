@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useState,
   useEffect,
-  useRef,
 } from 'react';
 import axios, {AxiosInstance} from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,6 +15,7 @@ interface AxiosContextValue {
   setAuthToken: (token: string) => Promise<void>;
   clearAuthToken: () => Promise<void>;
   isTokenLoaded: boolean;
+  token: string | null;
 }
 
 const AxiosContext = createContext<AxiosContextValue | undefined>(undefined);
@@ -23,13 +23,6 @@ const AxiosContext = createContext<AxiosContextValue | undefined>(undefined);
 export function AxiosProvider({children}: {children: React.ReactNode}) {
   const [token, setToken] = useState<string | null>(null);
   const [isTokenLoaded, setIsTokenLoaded] = useState(false);
-  const tokenRef = useRef<string | null>(null);
-
-  // Update ref whenever token changes
-  useEffect(() => {
-    tokenRef.current = token;
-    console.log('Token updated:', token ? 'Token exists' : 'No token');
-  }, [token]);
 
   const axiosInstance = useMemo(() => {
     const instance = axios.create({
@@ -37,52 +30,22 @@ export function AxiosProvider({children}: {children: React.ReactNode}) {
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true', // Requiredfor ngrok
+        'ngrok-skip-browser-warning': 'true',
       },
     });
-
-    // Request interceptor: Add Bearer token to all requests
-    instance.interceptors.request.use(
-      config => {
-        const currentToken = tokenRef.current;
-        console.log('INTERCEPTOR: Request interceptor called for:', config.url);
-        console.log(
-          'INTERCEPTOR: Current token in ref:',
-          currentToken ? `${currentToken.substring(0, 20)}...` : 'null',
-        );
-
-        if (currentToken) {
-          console.log('INTERCEPTOR: Adding Authorization header');
-          // Set the Authorization header using axios syntax
-          config.headers = config.headers || {};
-          config.headers.Authorization = `Bearer ${currentToken}`;
-          console.log('INTERCEPTOR: Authorization header set');
-        } else {
-          console.log('INTERCEPTOR: No token available for request');
-        }
-        return config;
-      },
-      error => {
-        console.error('INTERCEPTOR: Request interceptor error:', error);
-        return Promise.reject(error);
-      },
-    );
-
-    // Response interceptor: Handle 401 errors (token expiration)
-    instance.interceptors.response.use(
-      response => response,
-      async error => {
-        if (error.response?.status === 401) {
-          console.log('Received 401, clearing token');
-          // Token expired or invalid, clear it
-          await clearAuthToken();
-        }
-        return Promise.reject(error);
-      },
-    );
-
     return instance;
-  }, []); // Empty dependency array - instance created only once
+  }, []);
+
+  // Update axios default headers when token changes
+  useEffect(() => {
+    if (token) {
+      axiosInstance.defaults.headers.common[
+        'Authorization'
+      ] = `Bearer ${token}`;
+    } else {
+      delete axiosInstance.defaults.headers.common['Authorization'];
+    }
+  }, [token, axiosInstance]);
 
   // Load token from AsyncStorage on mount
   useEffect(() => {
@@ -103,13 +66,8 @@ export function AxiosProvider({children}: {children: React.ReactNode}) {
 
   const setAuthToken = async (newToken: string) => {
     try {
-      console.log(
-        'AXIOS: Saving token to AsyncStorage, length:',
-        newToken.length,
-      );
       await AsyncStorage.setItem(TOKEN_KEY, newToken);
       setToken(newToken);
-      console.log('AXIOS: Token saved and state updated');
     } catch (error) {
       console.error('Error saving token:', error);
       throw error;
@@ -127,7 +85,13 @@ export function AxiosProvider({children}: {children: React.ReactNode}) {
 
   return (
     <AxiosContext.Provider
-      value={{axiosInstance, setAuthToken, clearAuthToken, isTokenLoaded}}>
+      value={{
+        axiosInstance,
+        setAuthToken,
+        clearAuthToken,
+        isTokenLoaded,
+        token,
+      }}>
       {children}
     </AxiosContext.Provider>
   );

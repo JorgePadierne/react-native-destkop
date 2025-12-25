@@ -1,5 +1,5 @@
 // /src/api/auth.ts
-import {LoginResponse} from '../types';
+import {LoginResponse, RegisterAdminInput} from '../types';
 import {AxiosInstance} from 'axios';
 
 export const createAuthApi = (axiosInstance: AxiosInstance) => ({
@@ -32,6 +32,21 @@ export const createAuthApi = (axiosInstance: AxiosInstance) => ({
         throw new Error('Credenciales incorrectas');
       }
       throw new Error('Error al iniciar sesión');
+    }
+  },
+
+  register: async (input: RegisterAdminInput): Promise<any> => {
+    try {
+      console.log('REGISTER: Calling /auth/register with:', input.nombre_admin);
+      const response = await axiosInstance.post('/auth/register', input);
+      console.log('REGISTER: Admin created:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('REGISTER: Error:', error);
+      if (error.response?.status === 400) {
+        throw new Error('Datos de registro inválidos');
+      }
+      throw new Error('Error al registrar el administrador');
     }
   },
 });

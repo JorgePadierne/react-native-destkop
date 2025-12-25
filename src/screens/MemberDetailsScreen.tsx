@@ -10,12 +10,14 @@ import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../App';
 import {createIntegrantesApi} from '../api/integrantes';
+import {createPagosApi} from '../api/pagos';
 import {Integrante} from '../types';
 import MemberHeader from '../components/MemberHeader';
 import MemberInfoCard from '../components/MemberInfoCard';
+import PaymentGrid from '../components/PaymentGrid';
 import {useTheme} from '../context/ThemeContext';
 import {useAxios} from '../context/AxiosContext';
-import {useAuth} from '../context/AuthContext';
+import {parsePaymentsToCuotas, getMonthString} from '../utils/dateHelpers';
 
 type MemberDetailsRouteProp = RouteProp<RootStackParamList, 'MemberDetails'>;
 type MemberDetailsNavigationProp = StackNavigationProp<
@@ -28,16 +30,20 @@ const MemberDetailsScreen = () => {
   const navigation = useNavigation<MemberDetailsNavigationProp>();
   const {integranteId} = route.params;
   const {colors} = useTheme();
-  const {axiosInstance} = useAxios();
-  const {token} = useAuth();
+  const {axiosInstance, token} = useAxios();
   const integrantesApi = React.useMemo(
     () => createIntegrantesApi(axiosInstance, token),
+    [axiosInstance, token],
+  );
+  const pagosApi = React.useMemo(
+    () => createPagosApi(axiosInstance, token),
     [axiosInstance, token],
   );
 
   const [integrante, setIntegrante] = useState<Integrante | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const loadIntegrante = useCallback(async () => {
     setLoading(true);
@@ -60,7 +66,7 @@ const MemberDetailsScreen = () => {
     loadIntegrante();
   }, [loadIntegrante]);
 
-  const handleSave = async (_data: {
+  const handleSave = async (data: {
     nombre_apellidos: string;
     fecha_alta_tmp: string;
     fecha_baja_tmp: string | null;
@@ -70,15 +76,12 @@ const MemberDetailsScreen = () => {
     }
     try {
       setLoading(true);
-      // For now, we reload after save since update endpoint might not exist
-      // You may need to implement PUT /asociated/update/{id} in your backend
-      Alert.alert(
-        'Información',
-        'La funcionalidad de edición requiere un endpoint de actualización en el backend',
-      );
+      await integrantesApi.update(Number(integranteId), data);
+      Alert.alert('Éxito', 'Datos actualizados correctamente');
       setIsEditing(false);
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo actualizar');
+      await loadIntegrante(); // Reload to get fresh data
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'No se pudo actualizar');
     } finally {
       setLoading(false);
     }
@@ -96,14 +99,71 @@ const MemberDetailsScreen = () => {
           onPress: async () => {
             if (integrante) {
               try {
-                // This requires an update endpoint in the backend
-                Alert.alert(
-                  'Información',
-                  'La funcionalidad de dar de baja requiere un endpoint de actualización',
-                );
-              } catch (e) {
-                Alert.alert('Error', 'No se pudo dar de baja');
+                setLoading(true);
+                const today = new Date().toISOString().split('T')[0];
+                await integrantesApi.update(Number(integranteId), {
+                  fecha_baja_tmp: today,
+                });
+                Alert.alert('Éxito', 'Integrante dado de baja correctamente');
+                await loadIntegrante(); // Reload to get fresh data
+              } catch (error: any) {
+                Alert.alert('Error', error.message || 'No se pudo dar de baja');
+              } finally {
+                setLoading(false);
               }
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleTogglePayment = async (yearIndex: number, monthIndex: number) => {
+    if (!integrante || paymentLoading) {
+      return;
+    }
+
+    const cuotasPorAnio = parsePaymentsToCuotas(
+      integrante.pagos,
+      integrante.fecha_alta_tmp,
+      integrante.fecha_baja_tmp,
+    );
+
+    const year = cuotasPorAnio[yearIndex].anio;
+    const isPaid = cuotasPorAnio[yearIndex].meses[monthIndex];
+    const monthStr = getMonthString(year, monthIndex);
+
+    if (isPaid) {
+      // Payment exists - show info that deletion is not supported
+      Alert.alert(
+        'Pago existente',
+        'Este mes ya está pagado. La eliminación de pagos no está soportada actualmente.',
+      );
+      return;
+    }
+
+    // Create new payment
+    Alert.alert(
+      'Registrar Pago',
+      `¿Deseas registrar el pago para ${monthStr}?`,
+      [
+        {text: 'Cancelar', style: 'cancel'},
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            try {
+              setPaymentLoading(true);
+              await pagosApi.create({
+                id_persona: integrante.id_asociado,
+                mes_anio_tmp: monthStr,
+                monto: 10.0, // Default amount, could be configurable
+              });
+              Alert.alert('Éxito', 'Pago registrado correctamente');
+              await loadIntegrante(); // Reload to get fresh data with new payment
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'No se pudo crear el pago');
+            } finally {
+              setPaymentLoading(false);
             }
           },
         },
@@ -123,6 +183,19 @@ const MemberDetailsScreen = () => {
     return null;
   }
 
+  console.log('--- DEBUG PAYMENTS ---');
+  console.log('Pagos raw:', integrante.pagos);
+  if (integrante.pagos && integrante.pagos.length > 0) {
+    console.log('First payment date sample:', integrante.pagos[0].mes_anio_tmp);
+  }
+
+  // Parse payments to cuotas format
+  const cuotasPorAnio = parsePaymentsToCuotas(
+    integrante.pagos,
+    integrante.fecha_alta_tmp,
+    integrante.fecha_baja_tmp,
+  );
+
   return (
     <ScrollView
       style={[styles.container, {backgroundColor: colors.background}]}>
@@ -136,11 +209,11 @@ const MemberDetailsScreen = () => {
         onDelete={handleBaja}
       />
 
-      {/* Payment grid temporarily disabled - requires implementation with POST /payments/create */}
-      {/* <PaymentGrid
-        cuotasPorAnio={integrante.cuotasPorAnio}
-        onTogglePayment={togglePayment}
-      />  */}
+      {/* Payment grid now enabled with real data */}
+      <PaymentGrid
+        cuotasPorAnio={cuotasPorAnio}
+        onTogglePayment={handleTogglePayment}
+      />
     </ScrollView>
   );
 };

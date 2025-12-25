@@ -9,6 +9,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import MemberDetailsScreen from './src/screens/MemberDetailsScreen';
 import AddMemberScreen from './src/screens/AddMemberScreen';
+import RegisterAdminScreen from './src/screens/RegisterAdminScreen';
 import {AuthProvider, useAuth} from './src/context/AuthContext';
 import {ThemeProvider, useTheme} from './src/context/ThemeContext';
 import {AxiosProvider} from './src/context/AxiosContext';
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   Login: undefined;
   MemberDetails: {integranteId: number};
   AddMember: undefined;
+  RegisterAdmin: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -61,6 +63,11 @@ const RootNavigator: React.FC = () => {
               name="AddMember"
               component={AddMemberScreen}
               options={{title: 'Agregar Integrante'}}
+            />
+            <Stack.Screen
+              name="RegisterAdmin"
+              component={RegisterAdminScreen}
+              options={{title: 'Registrar Administrador'}}
             />
           </>
         ) : (
