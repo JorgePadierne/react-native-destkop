@@ -79,6 +79,25 @@ export const createPagosApi = (
         throw new Error('Error al obtener los pagos');
       }
     },
+
+    /**
+     * Remove a payment by ID
+     * DELETE /payments/remove/:id
+     */
+    remove: async (id: number): Promise<void> => {
+      try {
+        console.log('Removing payment:', id);
+        await axiosInstance.delete(`/payments/remove/${id}`, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+        });
+        console.log('Payment removed successfully');
+      } catch (error: any) {
+        console.error('Error removing payment:', error);
+        throw new Error('Error al eliminar el pago');
+      }
+    },
   };
 
   return api;

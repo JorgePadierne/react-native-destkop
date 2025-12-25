@@ -17,7 +17,12 @@ import MemberInfoCard from '../components/MemberInfoCard';
 import PaymentGrid from '../components/PaymentGrid';
 import {useTheme} from '../context/ThemeContext';
 import {useAxios} from '../context/AxiosContext';
-import {parsePaymentsToCuotas, getMonthString} from '../utils/dateHelpers';
+import {useAuth} from '../context/AuthContext';
+import {
+  parsePaymentsToCuotas,
+  getMonthString,
+  formatDateToYYYYMM,
+} from '../utils/dateHelpers';
 
 type MemberDetailsRouteProp = RouteProp<RootStackParamList, 'MemberDetails'>;
 type MemberDetailsNavigationProp = StackNavigationProp<
@@ -31,6 +36,11 @@ const MemberDetailsScreen = () => {
   const {integranteId} = route.params;
   const {colors} = useTheme();
   const {axiosInstance, token} = useAxios();
+  const {user} = useAuth();
+
+  const isReadOnly = user?.role === 'USER';
+  const canDeletePayments = user?.role !== 'USER';
+
   const integrantesApi = React.useMemo(
     () => createIntegrantesApi(axiosInstance, token),
     [axiosInstance, token],
@@ -76,7 +86,17 @@ const MemberDetailsScreen = () => {
     }
     try {
       setLoading(true);
-      await integrantesApi.update(Number(integranteId), data);
+
+      // Fix: Validation for YYYY-MM format to convert to YYYY-MM-DD
+      let sanitizedFechaAlta = data.fecha_alta_tmp;
+      if (/^\d{4}-\d{2}$/.test(sanitizedFechaAlta)) {
+        sanitizedFechaAlta = `${sanitizedFechaAlta}-01`;
+      }
+
+      await integrantesApi.update(Number(integranteId), {
+        ...data,
+        fecha_alta_tmp: sanitizedFechaAlta,
+      });
       Alert.alert('Éxito', 'Datos actualizados correctamente');
       setIsEditing(false);
       await loadIntegrante(); // Reload to get fresh data
@@ -118,6 +138,35 @@ const MemberDetailsScreen = () => {
     );
   };
 
+  const handleAlta = () => {
+    Alert.alert(
+      'Dar de Alta',
+      '¿Estás seguro de que deseas reactivar a este integrante?',
+      [
+        {text: 'Cancelar', style: 'cancel'},
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            if (integrante) {
+              try {
+                setLoading(true);
+                await integrantesApi.update(Number(integranteId), {
+                  fecha_baja_tmp: null,
+                });
+                Alert.alert('Éxito', 'Integrante reactivado correctamente');
+                await loadIntegrante(); // Reload to get fresh data
+              } catch (error: any) {
+                Alert.alert('Error', error.message || 'No se pudo reactivar');
+              } finally {
+                setLoading(false);
+              }
+            }
+          },
+        },
+      ],
+    );
+  };
+
   const handleTogglePayment = async (yearIndex: number, monthIndex: number) => {
     if (!integrante || paymentLoading) {
       return;
@@ -130,45 +179,99 @@ const MemberDetailsScreen = () => {
     );
 
     const year = cuotasPorAnio[yearIndex].anio;
-    const isPaid = cuotasPorAnio[yearIndex].meses[monthIndex];
+    const monthData = cuotasPorAnio[yearIndex].meses[monthIndex];
+    const isPaid = monthData.paid;
     const monthStr = getMonthString(year, monthIndex);
 
+    // RBAC Check
+    if (isReadOnly) {
+      Alert.alert('Acceso Denegado', 'No tienes permisos.');
+      return;
+    }
+
     if (isPaid) {
-      // Payment exists - show info that deletion is not supported
+      if (!canDeletePayments) {
+        Alert.alert('Acceso Denegado', 'No tienes permisos.');
+        return;
+      }
+
+      // Try to find payment ID from the grid data first, fallback to array search
+      let paymentIdToDelete = monthData.id;
+
+      if (!paymentIdToDelete && integrante.pagos) {
+        const paymentToDelete = integrante.pagos.find(
+          p => formatDateToYYYYMM(p.mes_anio_tmp) === monthStr,
+        );
+        paymentIdToDelete = paymentToDelete ? paymentToDelete.id : null;
+      }
+
+      if (!paymentIdToDelete) {
+        Alert.alert('Error', 'No se encontró el pago para eliminar');
+        return;
+      }
+
+      // Confirm deletion
       Alert.alert(
-        'Pago existente',
-        'Este mes ya está pagado. La eliminación de pagos no está soportada actualmente.',
+        'Eliminar Pago',
+        `¿Deseas eliminar el pago del mes ${monthStr}?`,
+        [
+          {text: 'Cancelar', style: 'cancel'},
+          {
+            text: 'Eliminar',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                setPaymentLoading(true);
+                await pagosApi.remove(paymentIdToDelete as number);
+                Alert.alert('Éxito', 'Pago eliminado correctamente');
+                await loadIntegrante(); // Reload data
+              } catch (error: any) {
+                Alert.alert(
+                  'Error',
+                  error.message || 'No se pudo eliminar el pago',
+                );
+              } finally {
+                setPaymentLoading(false);
+              }
+            },
+          },
+        ],
       );
       return;
     }
 
     // Create new payment
-    Alert.alert(
-      'Registrar Pago',
-      `¿Deseas registrar el pago para ${monthStr}?`,
-      [
-        {text: 'Cancelar', style: 'cancel'},
-        {
-          text: 'Confirmar',
-          onPress: async () => {
-            try {
-              setPaymentLoading(true);
-              await pagosApi.create({
-                id_persona: integrante.id_asociado,
-                mes_anio_tmp: monthStr,
-                monto: 10.0, // Default amount, could be configurable
-              });
-              Alert.alert('Éxito', 'Pago registrado correctamente');
-              await loadIntegrante(); // Reload to get fresh data with new payment
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'No se pudo crear el pago');
-            } finally {
-              setPaymentLoading(false);
-            }
-          },
-        },
-      ],
-    );
+    Alert.alert('Registrar Pago', `Selecciona el monto para ${monthStr}:`, [
+      {text: 'Cancelar', style: 'cancel'},
+      {
+        text: '3 Euros',
+        onPress: () => registerPayment(monthStr, 3.0),
+      },
+      {
+        text: '5 Euros',
+        onPress: () => registerPayment(monthStr, 5.0),
+      },
+    ]);
+  };
+
+  const registerPayment = async (monthStr: string, amount: number) => {
+    if (!integrante) {
+      return;
+    }
+    try {
+      setPaymentLoading(true);
+      await pagosApi.create({
+        id_persona: integrante.id_asociado,
+        mes_anio_tmp: monthStr,
+        monto: amount,
+      });
+      Alert.alert('Éxito', 'Pago registrado correctamente');
+      await loadIntegrante(); // Reload to get fresh data with new payment
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'No se pudo crear el pago');
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
   if (loading && !integrante) {
@@ -207,6 +310,8 @@ const MemberDetailsScreen = () => {
         onEditToggle={() => setIsEditing(!isEditing)}
         onSave={handleSave}
         onDelete={handleBaja}
+        onActivate={handleAlta}
+        isReadOnly={isReadOnly}
       />
 
       {/* Payment grid now enabled with real data */}

@@ -43,12 +43,12 @@ const PaymentGrid: React.FC<PaymentGridProps> = ({
             {anioData.anio}
           </Text>
           <View style={styles.monthsGrid}>
-            {anioData.meses.map((pagado: boolean, monthIndex: number) => (
+            {anioData.meses.map((mesData, monthIndex) => (
               <TouchableOpacity
                 key={monthIndex}
                 style={[
                   styles.monthBox,
-                  pagado
+                  mesData.paid
                     ? {backgroundColor: colors.secondary}
                     : {backgroundColor: colors.inputBg},
                 ]}
@@ -56,12 +56,17 @@ const PaymentGrid: React.FC<PaymentGridProps> = ({
                 <Text
                   style={[
                     styles.monthText,
-                    pagado
+                    mesData.paid
                       ? {color: '#fff', fontWeight: 'bold'}
                       : {color: colors.textLight},
                   ]}>
                   {months[monthIndex]}
                 </Text>
+                {mesData.paid && mesData.amount && (
+                  <Text style={[styles.amountText, {color: '#fff'}]}>
+                    {Number(mesData.amount)}€
+                  </Text>
+                )}
               </TouchableOpacity>
             ))}
           </View>
@@ -109,6 +114,11 @@ const styles = StyleSheet.create({
   },
   monthText: {
     fontSize: 10,
+  },
+  amountText: {
+    fontSize: 9,
+    marginTop: 2,
+    fontWeight: 'bold',
   },
 });
 

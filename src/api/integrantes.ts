@@ -17,7 +17,7 @@ export const createIntegrantesApi = (
      */
     getAll: async (): Promise<Integrante[]> => {
       try {
-        const response = await axiosInstance.get('/asociated/getall', {
+        const response = await axiosInstance.get('/asociated/getall/true', {
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
           },
@@ -76,7 +76,7 @@ export const createIntegrantesApi = (
 
     /**
      * Update an asociado by ID
-     * PUT /asociated/update/:id
+     * PATCH /asociated/update/:id
      */
     update: async (
       id: number,
@@ -84,7 +84,7 @@ export const createIntegrantesApi = (
     ): Promise<Integrante> => {
       try {
         console.log('Updating asociado:', id, input);
-        const response = await axiosInstance.put(
+        const response = await axiosInstance.patch(
           `/asociated/update/${id}`,
           input,
           {

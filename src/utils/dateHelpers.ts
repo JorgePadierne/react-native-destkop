@@ -49,13 +49,22 @@ export const generateMonthsRange = (
  */
 export const formatDateToYYYYMM = (date: Date | string): string => {
   if (typeof date === 'string') {
-    // If it's a string, try to extract YYYY-MM directly to avoid timezone issues
-    // Handles formats like "2023-05-01T..." or "2023-05"
-    if (/^\d{4}-\d{2}/.test(date)) {
-      return date.substring(0, 7);
+    // If it's a strict YYYY-MM string, return it as is
+    if (/^\d{4}-\d{2}$/.test(date)) {
+      return date;
     }
-    // Fallback for other string formats
+    // For ISO strings (e.g. 2023-09-30T22:00:00.000Z), we MUST parse to Date
+    // to allow conversion to Local Time. Using substring would capture the UTC date (Sept 30)
+    // instead of Local date (Oct 1).
+    // Parse the date
     const d = new Date(date);
+
+    // Add 12 hours to handle timezone offsets safely
+    // This moves 'Previous Day 22:00' -> 'Current Day 10:00'
+    // And 'Current Day 00:00' -> 'Current Day 12:00'
+    // Ensuring we always land on the correct day/month
+    d.setHours(d.getHours() + 12);
+
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     return `${year}-${month}`;
@@ -82,23 +91,40 @@ export const parsePaymentsToCuotas = (
   // Generate all months the member should have paid
   const allMonths = generateMonthsRange(fechaAlta, fechaBaja);
 
-  // Create a Set of paid months for quick lookup
-  const paidMonths = new Set(
-    pagos.map(pago => formatDateToYYYYMM(pago.mes_anio_tmp)),
-  );
+  // Create a map of paid months for quick lookup (key: "YYYY-MM")
+  const paidMap = new Map<string, {amount: string; id: number}>();
+
+  pagos.forEach(pago => {
+    const key = formatDateToYYYYMM(pago.mes_anio_tmp);
+    paidMap.set(key, {amount: pago.monto, id: pago.id});
+  });
 
   // Group by year
-  const yearMap: {[year: number]: boolean[]} = {};
+  const yearMap: {
+    [year: number]: {paid: boolean; amount: string | null; id: number | null}[];
+  } = {};
 
   allMonths.forEach(monthStr => {
     const [year, month] = monthStr.split('-').map(Number);
 
     if (!yearMap[year]) {
-      yearMap[year] = new Array(12).fill(false);
+      // Initialize with 12 empty months
+      yearMap[year] = Array.from({length: 12}, () => ({
+        paid: false,
+        amount: null,
+        id: null,
+      }));
     }
 
-    // Mark as paid if in the paidMonths set
-    yearMap[year][month - 1] = paidMonths.has(monthStr);
+    // Check if we have payment data for this month
+    const paymentData = paidMap.get(monthStr);
+    if (paymentData) {
+      yearMap[year][month - 1] = {
+        paid: true,
+        amount: paymentData.amount,
+        id: paymentData.id,
+      };
+    }
   });
 
   // Convert to CuotasPorAnio array

@@ -13,6 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import {createAuthApi} from '../api/auth';
 import {useTheme} from '../context/ThemeContext';
 import {useAxios} from '../context/AxiosContext';
+import {useAuth} from '../context/AuthContext';
 
 const RegisterAdminScreen = () => {
   const navigation = useNavigation();
@@ -22,6 +23,16 @@ const RegisterAdminScreen = () => {
     () => createAuthApi(axiosInstance),
     [axiosInstance],
   );
+
+  const {user} = useAuth();
+
+  React.useEffect(() => {
+    if (user?.role !== 'SUPERADMIN') {
+      Alert.alert('Acceso Denegado', 'No tienes permisos.', [
+        {text: 'OK', onPress: () => navigation.goBack()},
+      ]);
+    }
+  }, [user, navigation]);
 
   const [nombreAdmin, setNombreAdmin] = useState('');
   const [password, setPassword] = useState('');

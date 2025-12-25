@@ -19,6 +19,7 @@ interface HomeControlsProps {
   colors: ThemeColors;
   toggleTheme: () => void;
   isDarkMode: boolean;
+  canAddMember: boolean;
 }
 
 const HomeControls: React.FC<HomeControlsProps> = ({
@@ -32,6 +33,7 @@ const HomeControls: React.FC<HomeControlsProps> = ({
   colors,
   toggleTheme,
   isDarkMode,
+  canAddMember,
 }) => {
   return (
     <View
@@ -55,11 +57,13 @@ const HomeControls: React.FC<HomeControlsProps> = ({
             value={searchQuery}
             onChangeText={onSearchChange}
           />
-          <TouchableOpacity
-            style={[styles.addButton, {backgroundColor: colors.secondary}]}
-            onPress={onAddMember}>
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
+          {canAddMember && (
+            <TouchableOpacity
+              style={[styles.addButton, {backgroundColor: colors.secondary}]}
+              onPress={onAddMember}>
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <TouchableOpacity
           style={[styles.themeButton, {backgroundColor: colors.inputBg}]}

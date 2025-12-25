@@ -9,6 +9,7 @@ import React, {
 import {createAuthApi} from '../api/auth';
 import {LoginResponse} from '../types';
 import {useAxios} from './AxiosContext';
+import {jwtDecode} from 'jwt-decode';
 
 interface AuthContextValue {
   user: LoginResponse['user'] | null;
@@ -33,7 +34,18 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
   useEffect(() => {
     if (isTokenLoaded && token) {
       // Token exists, user is authenticated
-      // You might want to validate the token or fetch user data here
+      try {
+        const decoded: any = jwtDecode(token);
+        console.log('AUTH: Restoring session, role:', decoded.rol);
+        setUser({
+          id: decoded.sub || decoded.id,
+          username: decoded.nombre_admin || decoded.username,
+          role: decoded.rol || decoded.role || 'USER',
+        });
+      } catch (e) {
+        console.error('AUTH: Error decoding token during restore', e);
+        // If token is invalid, maybe logout?
+      }
     }
   }, [isTokenLoaded, token]);
 
@@ -43,7 +55,17 @@ export const AuthProvider: React.FC<{children: ReactNode}> = ({children}) => {
       console.log('AUTH: Starting login...');
       const res = await authApi.login(nombreAdmin, password);
       console.log('AUTH: Login successful, token:', res.token);
-      setUser(res.user);
+
+      // Decode token to get role
+      const decoded: any = jwtDecode(res.token);
+      console.log('AUTH: Decoded token payload:', decoded);
+
+      const userWithRole = {
+        ...res.user,
+        role: decoded.rol || decoded.role || 'USER',
+      };
+
+      setUser(userWithRole);
       setToken(res.token);
       console.log('AUTH: Saving token to AsyncStorage...');
       await setAuthToken(res.token);

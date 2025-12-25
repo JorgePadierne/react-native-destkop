@@ -26,11 +26,10 @@ export function AxiosProvider({children}: {children: React.ReactNode}) {
 
   const axiosInstance = useMemo(() => {
     const instance = axios.create({
-      baseURL: 'https://pleochroitic-multifid-gilberte.ngrok-free.dev',
+      baseURL: 'http://localhost:4000',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
       },
     });
     return instance;

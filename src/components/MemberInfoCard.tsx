@@ -19,6 +19,8 @@ interface MemberInfoCardProps {
     fecha_baja_tmp: string | null;
   }) => void;
   onDelete: () => void;
+  onActivate?: () => void;
+  isReadOnly?: boolean;
 }
 
 const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
@@ -27,6 +29,8 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
   onEditToggle,
   onSave,
   onDelete,
+  onActivate,
+  isReadOnly = false,
 }) => {
   const {colors} = useTheme();
   const [editName, setEditName] = React.useState(integrante.nombre_apellidos);
@@ -50,16 +54,18 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
         <Text style={[styles.sectionTitle, {color: colors.text}]}>
           Información Personal
         </Text>
-        <TouchableOpacity
-          style={[
-            styles.editButton,
-            {backgroundColor: isEditing ? colors.secondary : colors.primary},
-          ]}
-          onPress={isEditing ? handleSavePress : onEditToggle}>
-          <Text style={styles.editButtonText}>
-            {isEditing ? 'Guardar' : 'Editar'}
-          </Text>
-        </TouchableOpacity>
+        {!isReadOnly && (
+          <TouchableOpacity
+            style={[
+              styles.editButton,
+              {backgroundColor: isEditing ? colors.secondary : colors.primary},
+            ]}
+            onPress={isEditing ? handleSavePress : onEditToggle}>
+            <Text style={styles.editButtonText}>
+              {isEditing ? 'Guardar' : 'Editar'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.infoRow}>
@@ -121,14 +127,32 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
         </View>
       )}
 
-      {isEditing && !integrante.fecha_baja_tmp && (
-        <TouchableOpacity
-          style={[styles.deleteButton, {borderColor: colors.danger}]}
-          onPress={onDelete}>
-          <Text style={[styles.deleteButtonText, {color: colors.danger}]}>
-            Dar de Baja
-          </Text>
-        </TouchableOpacity>
+      {isEditing && (
+        <>
+          {integrante.fecha_baja_tmp ? (
+            <TouchableOpacity
+              style={[
+                styles.deleteButton,
+                {
+                  backgroundColor: colors.secondary,
+                  borderColor: colors.secondary,
+                },
+              ]}
+              onPress={onActivate}>
+              <Text style={[styles.deleteButtonText, {color: '#fff'}]}>
+                Dar de Alta
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.deleteButton, {borderColor: colors.danger}]}
+              onPress={onDelete}>
+              <Text style={[styles.deleteButtonText, {color: colors.danger}]}>
+                Dar de Baja
+              </Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
     </View>
   );

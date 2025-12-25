@@ -56,11 +56,16 @@ export interface LoginResponse {
   user: {
     id: string;
     username: string;
+    role?: string;
   };
 }
 
 // Helper type for payment grid
 export interface CuotasPorAnio {
   anio: number;
-  meses: boolean[]; // 12 elements, true = paid
+  meses: {
+    paid: boolean;
+    amount: string | null;
+    id: number | null;
+  }[]; // 12 elements
 }
