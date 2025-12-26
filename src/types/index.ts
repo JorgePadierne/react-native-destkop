@@ -19,6 +19,7 @@ export interface Integrante {
   mesesMorosos: string[]; // Array of "YYYY-MM" strings
   totalMeses: number;
   pagosRealizados: number;
+  activo: boolean;
   pagos: Pago[];
 }
 
@@ -27,6 +28,7 @@ export interface IntegranteCreateInput {
   nombre_apellidos: string;
   fecha_alta_tmp: string; // Format: "YYYY-MM-DD" or ISO timestamp
   fecha_baja_tmp: string | null;
+  activo: boolean;
 }
 
 // Input for updating an asociado (if needed in the future)
@@ -34,6 +36,7 @@ export interface IntegranteUpdateInput {
   nombre_apellidos?: string;
   fecha_alta_tmp?: string;
   fecha_baja_tmp?: string | null;
+  activo?: boolean;
 }
 
 // Input for creating a new payment (POST /payments/create)

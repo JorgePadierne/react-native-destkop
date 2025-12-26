@@ -43,6 +43,7 @@ const AddMemberScreen = () => {
         nombre_apellidos: nombreApellidos,
         fecha_alta_tmp: fechaAlta,
         fecha_baja_tmp: null,
+        activo: true,
       });
       Alert.alert('Éxito', 'Integrante agregado correctamente', [
         {text: 'OK', onPress: () => navigation.goBack()},

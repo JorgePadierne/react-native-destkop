@@ -15,17 +15,20 @@ export const createIntegrantesApi = (
      * Get all asociados
      * GET /asociated/getall
      */
-    getAll: async (): Promise<Integrante[]> => {
+    getAll: async (activo: boolean = true): Promise<Integrante[]> => {
       try {
-        const response = await axiosInstance.get('/asociated/getall/true', {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : '',
+        const response = await axiosInstance.get(
+          `/asociated/getall/${activo}`,
+          {
+            headers: {
+              Authorization: token ? `Bearer ${token}` : '',
+            },
           },
-        });
+        );
         return response.data;
       } catch (error: any) {
         console.error(
-          'Error fetching asociados:',
+          `Error fetching asociados (activo=${activo}):`,
           error.response?.data || error.message,
         );
         throw new Error('Error al obtener los asociados');
@@ -114,7 +117,11 @@ export const createIntegrantesApi = (
      */
     getById: async (id: number): Promise<Integrante | null> => {
       try {
-        const all = await api.getAll();
+        const [active, inactive] = await Promise.all([
+          api.getAll(true),
+          api.getAll(false),
+        ]);
+        const all = [...active, ...inactive];
         return all.find(i => i.id_asociado === id) || null;
       } catch (error) {
         console.error('Error fetching asociado by ID:', error);

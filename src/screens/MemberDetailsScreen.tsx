@@ -123,6 +123,7 @@ const MemberDetailsScreen = () => {
                 const today = new Date().toISOString().split('T')[0];
                 await integrantesApi.update(Number(integranteId), {
                   fecha_baja_tmp: today,
+                  activo: false,
                 });
                 Alert.alert('Éxito', 'Integrante dado de baja correctamente');
                 await loadIntegrante(); // Reload to get fresh data
@@ -152,6 +153,7 @@ const MemberDetailsScreen = () => {
                 setLoading(true);
                 await integrantesApi.update(Number(integranteId), {
                   fecha_baja_tmp: null,
+                  activo: true,
                 });
                 Alert.alert('Éxito', 'Integrante reactivado correctamente');
                 await loadIntegrante(); // Reload to get fresh data

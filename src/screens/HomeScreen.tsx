@@ -88,9 +88,13 @@ const HomeScreen: React.FC = () => {
       const loadData = async () => {
         setLoading(true);
         try {
-          const data = await integrantesApi.getAll();
-          setIntegrantes(data);
-          applyFilters(data, searchQuery, filterStatus, filterDebt);
+          const [active, inactive] = await Promise.all([
+            integrantesApi.getAll(true),
+            integrantesApi.getAll(false),
+          ]);
+          const allMembers = [...active, ...inactive];
+          setIntegrantes(allMembers);
+          applyFilters(allMembers, searchQuery, filterStatus, filterDebt);
         } catch (error) {
           console.error(error);
         } finally {
