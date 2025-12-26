@@ -5,9 +5,13 @@ import {useTheme} from '../context/ThemeContext';
 
 interface MemberHeaderProps {
   integrante: Integrante;
+  totalAportado: number;
 }
 
-const MemberHeader: React.FC<MemberHeaderProps> = ({integrante}) => {
+const MemberHeader: React.FC<MemberHeaderProps> = ({
+  integrante,
+  totalAportado,
+}) => {
   const {colors} = useTheme();
 
   return (
@@ -26,9 +30,19 @@ const MemberHeader: React.FC<MemberHeaderProps> = ({integrante}) => {
         </Text>
       </View>
       <View style={styles.headerInfo}>
-        <Text style={[styles.name, {color: colors.text}]}>
-          {integrante.nombre_apellidos}
-        </Text>
+        <View style={styles.nameRow}>
+          <Text style={[styles.name, {color: colors.text}]}>
+            {integrante.nombre_apellidos}
+          </Text>
+          <View style={[styles.montoBadge, {backgroundColor: colors.inputBg}]}>
+            <Text style={[styles.montoLabel, {color: colors.textLight}]}>
+              Total Aportado:
+            </Text>
+            <Text style={[styles.montoValue, {color: colors.secondary}]}>
+              {totalAportado.toFixed(2).replace('.', ',')} €
+            </Text>
+          </View>
+        </View>
         <View
           style={[
             styles.statusBadge,
@@ -87,7 +101,27 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 22,
     fontWeight: 'bold',
+  },
+  nameRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
+  },
+  montoBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    alignItems: 'flex-end',
+  },
+  montoLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  montoValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   statusBadge: {
     alignSelf: 'flex-start',

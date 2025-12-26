@@ -20,6 +20,7 @@ interface HomeControlsProps {
   toggleTheme: () => void;
   isDarkMode: boolean;
   canAddMember: boolean;
+  onAccounting: () => void;
 }
 
 const HomeControls: React.FC<HomeControlsProps> = ({
@@ -34,6 +35,7 @@ const HomeControls: React.FC<HomeControlsProps> = ({
   toggleTheme,
   isDarkMode,
   canAddMember,
+  onAccounting,
 }) => {
   return (
     <View
@@ -69,6 +71,11 @@ const HomeControls: React.FC<HomeControlsProps> = ({
           style={[styles.themeButton, {backgroundColor: colors.inputBg}]}
           onPress={toggleTheme}>
           <Text style={{fontSize: 20}}>{isDarkMode ? '🌙' : '☀️'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.accountingButton, {backgroundColor: colors.primary}]}
+          onPress={onAccounting}>
+          <Text style={styles.accountingButtonText}>📊</Text>
         </TouchableOpacity>
       </View>
 
@@ -289,6 +296,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.1)',
+  },
+  accountingButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  accountingButtonText: {
+    fontSize: 20,
   },
 });
 

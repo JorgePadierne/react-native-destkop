@@ -299,10 +299,14 @@ const MemberDetailsScreen = () => {
     integrante.fecha_baja_tmp,
   );
 
+  // Calculate total money contributed
+  const totalAportado =
+    integrante.pagos?.reduce((sum, p) => sum + Number(p.monto), 0) || 0;
+
   return (
     <ScrollView
       style={[styles.container, {backgroundColor: colors.background}]}>
-      <MemberHeader integrante={integrante} />
+      <MemberHeader integrante={integrante} totalAportado={totalAportado} />
 
       <MemberInfoCard
         integrante={integrante}

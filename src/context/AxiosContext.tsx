@@ -26,7 +26,7 @@ export function AxiosProvider({children}: {children: React.ReactNode}) {
 
   const axiosInstance = useMemo(() => {
     const instance = axios.create({
-      baseURL: 'http://localhost:4000',
+      baseURL: 'https://backend-tocoro-postgresql-production.up.railway.app',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',

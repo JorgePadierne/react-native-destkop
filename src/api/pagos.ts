@@ -98,6 +98,32 @@ export const createPagosApi = (
         throw new Error('Error al eliminar el pago');
       }
     },
+
+    /**
+     * Get accounting total for a year and optionally a month
+     * GET /payments/filter?year=YYYY&month=MM
+     */
+    getAccountingTotal: async (
+      year: number,
+      month?: number,
+    ): Promise<{total: number}> => {
+      try {
+        const url = month
+          ? `/payments/filter?year=${year}&month=${month}`
+          : `/payments/filter?year=${year}`;
+
+        console.log('Fetching accounting total for:', {year, month});
+        const response = await axiosInstance.get(url, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+          },
+        });
+        return response.data;
+      } catch (error: any) {
+        console.error('Error fetching accounting total:', error);
+        throw new Error('Error al obtener el total de contabilidad');
+      }
+    },
   };
 
   return api;

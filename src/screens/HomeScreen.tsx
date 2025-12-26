@@ -142,6 +142,7 @@ const HomeScreen: React.FC = () => {
         toggleTheme={toggleTheme}
         isDarkMode={isDarkMode}
         canAddMember={useAuth().user?.role !== 'USER'}
+        onAccounting={() => navigation.navigate('Accounting')}
       />
 
       <HomeTable integrantes={filteredIntegrantes} loading={loading} />
