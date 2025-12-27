@@ -65,6 +65,17 @@ const MemberHeader: React.FC<MemberHeaderProps> = ({
             {integrante.fecha_baja_tmp ? 'INACTIVO' : 'ACTIVO'}
           </Text>
         </View>
+
+        {integrante.cantidadMesesMorosos > 0 && (
+          <View
+            style={[
+              styles.statusBadge,
+              styles.debtorBadge,
+              {backgroundColor: colors.danger},
+            ]}>
+            <Text style={styles.debtorText}>DEUDOR</Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -141,6 +152,15 @@ const styles = StyleSheet.create({
   },
   statusTextInactive: {
     color: '#EF4444',
+  },
+  debtorBadge: {
+    marginTop: 8,
+    backgroundColor: '#EF4444',
+  },
+  debtorText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
 

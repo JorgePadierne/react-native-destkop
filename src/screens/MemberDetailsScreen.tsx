@@ -5,6 +5,8 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
+  Text,
+  TouchableOpacity,
 } from 'react-native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -132,6 +134,32 @@ const MemberDetailsScreen = () => {
               } finally {
                 setLoading(false);
               }
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handlePermanentDelete = () => {
+    Alert.alert(
+      'ELIMINAR PERMANENTEMENTE',
+      '¿Estás ABSOLUTAMENTE SEGURO? Esta acción no se puede deshacer y borrará todos los datos del integrante y sus pagos.',
+      [
+        {text: 'Cancelar', style: 'cancel'},
+        {
+          text: 'SÍ, ELIMINAR',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await integrantesApi.deleteById(Number(integranteId));
+              Alert.alert('Éxito', 'Integrante eliminado permanentemente');
+              navigation.navigate('Home');
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'No se pudo eliminar');
+            } finally {
+              setLoading(false);
             }
           },
         },
@@ -276,6 +304,88 @@ const MemberDetailsScreen = () => {
     }
   };
 
+  const handleFillAllPayments = () => {
+    if (
+      !integrante ||
+      !integrante.mesesMorosos ||
+      integrante.mesesMorosos.length === 0
+    ) {
+      Alert.alert('Información', 'No hay meses pendientes de pago.');
+      return;
+    }
+
+    Alert.alert(
+      'Rellenar Pagos',
+      `¿Deseas registrar ${integrante.mesesMorosos.length} pagos pendientes con el monto por defecto (3€)?`,
+      [
+        {text: 'Cancelar', style: 'cancel'},
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            try {
+              setPaymentLoading(true);
+              for (const monthStr of integrante.mesesMorosos) {
+                try {
+                  await pagosApi.create({
+                    id_persona: integrante.id_asociado,
+                    mes_anio_tmp: monthStr,
+                    monto: 3.0,
+                  });
+                } catch (err) {
+                  console.error(`Error filling month ${monthStr}:`, err);
+                }
+              }
+              Alert.alert('Éxito', 'Pagos registrados correctamente');
+              await loadIntegrante();
+            } catch (error: any) {
+              Alert.alert('Error', 'Ocurrió un error al procesar los pagos.');
+            } finally {
+              setPaymentLoading(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleDeleteAllPayments = () => {
+    if (!integrante || !integrante.pagos || integrante.pagos.length === 0) {
+      Alert.alert('Información', 'No hay pagos registrados para eliminar.');
+      return;
+    }
+
+    Alert.alert(
+      'Borrar TODOS los Pagos',
+      `¿Estás seguro de que deseas eliminar los ${integrante.pagos.length} pagos registrados? Esta acción no se puede deshacer.`,
+      [
+        {text: 'Cancelar', style: 'cancel'},
+        {
+          text: 'ELIMINAR TODO',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setPaymentLoading(true);
+              // Reverse to avoid issues if order matters, though usually it doesn't for deletes
+              for (const pago of integrante.pagos) {
+                try {
+                  await pagosApi.remove(pago.id);
+                } catch (err) {
+                  console.error(`Error deleting payment ${pago.id}:`, err);
+                }
+              }
+              Alert.alert('Éxito', 'Todos los pagos han sido eliminados');
+              await loadIntegrante();
+            } catch (error: any) {
+              Alert.alert('Error', 'Ocurrió un error al eliminar los pagos.');
+            } finally {
+              setPaymentLoading(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
   if (loading && !integrante) {
     return (
       <View style={styles.center}>
@@ -316,9 +426,25 @@ const MemberDetailsScreen = () => {
         onEditToggle={() => setIsEditing(!isEditing)}
         onSave={handleSave}
         onDelete={handleBaja}
+        onPermanentDelete={handlePermanentDelete}
         onActivate={handleAlta}
         isReadOnly={isReadOnly}
       />
+
+      {!isReadOnly && (
+        <View style={styles.bulkActions}>
+          <TouchableOpacity
+            style={[styles.bulkButton, {backgroundColor: colors.primary}]}
+            onPress={handleFillAllPayments}>
+            <Text style={styles.bulkButtonText}>Rellenar Pagos Pendientes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.bulkButton, {backgroundColor: colors.danger}]}
+            onPress={handleDeleteAllPayments}>
+            <Text style={styles.bulkButtonText}>Eliminar Todos los Pagos</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Payment grid now enabled with real data */}
       <PaymentGrid
@@ -332,6 +458,26 @@ const MemberDetailsScreen = () => {
 const styles = StyleSheet.create({
   container: {flex: 1},
   center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  bulkActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  bulkButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    flex: 0.45,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bulkButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 12,
+    textAlign: 'center',
+  },
 });
 
 export default MemberDetailsScreen;

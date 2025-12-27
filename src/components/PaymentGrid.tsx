@@ -50,7 +50,11 @@ const PaymentGrid: React.FC<PaymentGridProps> = ({
                   styles.monthBox,
                   mesData.paid
                     ? {backgroundColor: colors.secondary}
-                    : {backgroundColor: colors.inputBg},
+                    : {
+                        backgroundColor: '#FEE2E2',
+                        borderColor: colors.danger,
+                        borderWidth: 1,
+                      },
                 ]}
                 onPress={() => onTogglePayment(anioIndex, monthIndex)}>
                 <Text
@@ -58,7 +62,7 @@ const PaymentGrid: React.FC<PaymentGridProps> = ({
                     styles.monthText,
                     mesData.paid
                       ? {color: '#fff', fontWeight: 'bold'}
-                      : {color: colors.textLight},
+                      : {color: colors.danger, fontWeight: '600'},
                   ]}>
                   {months[monthIndex]}
                 </Text>

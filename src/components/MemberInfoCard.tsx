@@ -19,6 +19,7 @@ interface MemberInfoCardProps {
     fecha_baja_tmp: string | null;
   }) => void;
   onDelete: () => void;
+  onPermanentDelete?: () => void;
   onActivate?: () => void;
   isReadOnly?: boolean;
 }
@@ -29,6 +30,7 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
   onEditToggle,
   onSave,
   onDelete,
+  onPermanentDelete,
   onActivate,
   isReadOnly = false,
 }) => {
@@ -139,9 +141,7 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
                 },
               ]}
               onPress={onActivate}>
-              <Text style={[styles.deleteButtonText, {color: '#fff'}]}>
-                Dar de Alta
-              </Text>
+              <Text style={styles.activateButtonText}>Dar de Alta</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -149,6 +149,19 @@ const MemberInfoCard: React.FC<MemberInfoCardProps> = ({
               onPress={onDelete}>
               <Text style={[styles.deleteButtonText, {color: colors.danger}]}>
                 Dar de Baja
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {onPermanentDelete && (
+            <TouchableOpacity
+              style={[
+                styles.deleteButton,
+                {backgroundColor: colors.danger, borderColor: colors.danger},
+              ]}
+              onPress={onPermanentDelete}>
+              <Text style={styles.permanentDeleteButtonText}>
+                Eliminar Permanentemente
               </Text>
             </TouchableOpacity>
           )}
@@ -214,6 +227,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteButtonText: {
+    fontWeight: 'bold',
+  },
+  activateButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  permanentDeleteButtonText: {
+    color: '#fff',
     fontWeight: 'bold',
   },
 });
