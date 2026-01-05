@@ -21,6 +21,8 @@ interface HomeControlsProps {
   isDarkMode: boolean;
   canAddMember: boolean;
   onAccounting: () => void;
+  totalCount: number;
+  filteredCount: number;
 }
 
 const HomeControls: React.FC<HomeControlsProps> = ({
@@ -36,6 +38,8 @@ const HomeControls: React.FC<HomeControlsProps> = ({
   isDarkMode,
   canAddMember,
   onAccounting,
+  totalCount,
+  filteredCount,
 }) => {
   return (
     <View
@@ -77,6 +81,30 @@ const HomeControls: React.FC<HomeControlsProps> = ({
           onPress={onAccounting}>
           <Text style={styles.accountingButtonText}>📊</Text>
         </TouchableOpacity>
+      </View>
+
+      <View
+        style={[
+          styles.statsRow,
+          {backgroundColor: colors.inputBg, borderColor: colors.border},
+        ]}>
+        <View style={styles.statBox}>
+          <Text style={[styles.statValue, {color: colors.primary}]}>
+            {totalCount}
+          </Text>
+          <Text style={[styles.statLabel, {color: colors.textLight}]}>
+            Total Asociados
+          </Text>
+        </View>
+        <View style={[styles.statDivider, {backgroundColor: colors.border}]} />
+        <View style={styles.statBox}>
+          <Text style={[styles.statValue, {color: colors.secondary}]}>
+            {filteredCount}
+          </Text>
+          <Text style={[styles.statLabel, {color: colors.textLight}]}>
+            Filtrados
+          </Text>
+        </View>
       </View>
 
       <View style={styles.filtersSection}>
@@ -310,6 +338,33 @@ const styles = StyleSheet.create({
   },
   accountingButtonText: {
     fontSize: 20,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 20,
+  },
+  statBox: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 2,
+  },
+  statDivider: {
+    width: 1,
+    height: '100%',
+    marginHorizontal: 10,
   },
 });
 

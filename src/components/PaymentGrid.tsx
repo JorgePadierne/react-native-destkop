@@ -43,36 +43,39 @@ const PaymentGrid: React.FC<PaymentGridProps> = ({
             {anioData.anio}
           </Text>
           <View style={styles.monthsGrid}>
-            {anioData.meses.map((mesData, monthIndex) => (
-              <TouchableOpacity
-                key={monthIndex}
-                style={[
-                  styles.monthBox,
-                  mesData.paid
-                    ? {backgroundColor: colors.secondary}
-                    : {
-                        backgroundColor: '#FEE2E2',
-                        borderColor: colors.danger,
-                        borderWidth: 1,
-                      },
-                ]}
-                onPress={() => onTogglePayment(anioIndex, monthIndex)}>
-                <Text
-                  style={[
-                    styles.monthText,
-                    mesData.paid
-                      ? {color: '#fff', fontWeight: 'bold'}
-                      : {color: colors.danger, fontWeight: '600'},
-                  ]}>
-                  {months[monthIndex]}
-                </Text>
-                {mesData.paid && mesData.amount && (
-                  <Text style={[styles.amountText, {color: '#fff'}]}>
-                    {Number(mesData.amount)}€
-                  </Text>
-                )}
-              </TouchableOpacity>
-            ))}
+            {anioData.meses.map(
+              (mesData, monthIndex) =>
+                mesData.visible && (
+                  <TouchableOpacity
+                    key={monthIndex}
+                    style={[
+                      styles.monthBox,
+                      mesData.paid
+                        ? {backgroundColor: colors.secondary}
+                        : {
+                            backgroundColor: '#FEE2E2',
+                            borderColor: colors.danger,
+                            borderWidth: 1,
+                          },
+                    ]}
+                    onPress={() => onTogglePayment(anioIndex, monthIndex)}>
+                    <Text
+                      style={[
+                        styles.monthText,
+                        mesData.paid
+                          ? {color: '#fff', fontWeight: 'bold'}
+                          : {color: colors.danger, fontWeight: '600'},
+                      ]}>
+                      {months[monthIndex]}
+                    </Text>
+                    {mesData.paid && mesData.amount && (
+                      <Text style={[styles.amountText, {color: '#fff'}]}>
+                        {Number(mesData.amount)}€
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ),
+            )}
           </View>
         </View>
       ))}

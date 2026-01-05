@@ -24,8 +24,14 @@ export const generateMonthsRange = (
   const startDate = parseDate(fechaAlta);
   const endDate = parseDate(fechaBaja);
 
+  // Requirement: Association started collecting in November 2024.
+  // We ignore any months before that.
+  const billingStartDate = new Date(2024, 10, 1); // 2024-11-01
+  const actualStartDate =
+    startDate < billingStartDate ? billingStartDate : startDate;
+
   const months: string[] = [];
-  const current = new Date(startDate);
+  const current = new Date(actualStartDate);
 
   // Set to first day of month
   current.setDate(1);
@@ -101,7 +107,12 @@ export const parsePaymentsToCuotas = (
 
   // Group by year
   const yearMap: {
-    [year: number]: {paid: boolean; amount: string | null; id: number | null}[];
+    [year: number]: {
+      visible: boolean;
+      paid: boolean;
+      amount: string | null;
+      id: number | null;
+    }[];
   } = {};
 
   allMonths.forEach(monthStr => {
@@ -110,20 +121,22 @@ export const parsePaymentsToCuotas = (
     if (!yearMap[year]) {
       // Initialize with 12 empty months
       yearMap[year] = Array.from({length: 12}, () => ({
+        visible: false,
         paid: false,
         amount: null,
         id: null,
       }));
     }
 
+    // Mark this month as visible because it's within the range
+    yearMap[year][month - 1].visible = true;
+
     // Check if we have payment data for this month
     const paymentData = paidMap.get(monthStr);
     if (paymentData) {
-      yearMap[year][month - 1] = {
-        paid: true,
-        amount: paymentData.amount,
-        id: paymentData.id,
-      };
+      yearMap[year][month - 1].paid = true;
+      yearMap[year][month - 1].amount = paymentData.amount;
+      yearMap[year][month - 1].id = paymentData.id;
     }
   });
 

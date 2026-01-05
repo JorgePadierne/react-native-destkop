@@ -316,36 +316,46 @@ const MemberDetailsScreen = () => {
 
     Alert.alert(
       'Rellenar Pagos',
-      `¿Deseas registrar ${integrante.mesesMorosos.length} pagos pendientes con el monto por defecto (3€)?`,
+      `¿Deseas registrar ${integrante.mesesMorosos.length} pagos pendientes? Selecciona el monto:`,
       [
         {text: 'Cancelar', style: 'cancel'},
         {
-          text: 'Confirmar',
-          onPress: async () => {
-            try {
-              setPaymentLoading(true);
-              for (const monthStr of integrante.mesesMorosos) {
-                try {
-                  await pagosApi.create({
-                    id_persona: integrante.id_asociado,
-                    mes_anio_tmp: monthStr,
-                    monto: 3.0,
-                  });
-                } catch (err) {
-                  console.error(`Error filling month ${monthStr}:`, err);
-                }
-              }
-              Alert.alert('Éxito', 'Pagos registrados correctamente');
-              await loadIntegrante();
-            } catch (error: any) {
-              Alert.alert('Error', 'Ocurrió un error al procesar los pagos.');
-            } finally {
-              setPaymentLoading(false);
-            }
-          },
+          text: '3 Euros',
+          onPress: () => processBulkPayments(3.0),
+        },
+        {
+          text: '5 Euros',
+          onPress: () => processBulkPayments(5.0),
         },
       ],
     );
+  };
+
+  const processBulkPayments = async (amount: number) => {
+    if (!integrante || !integrante.mesesMorosos) {
+      return;
+    }
+
+    try {
+      setPaymentLoading(true);
+      for (const monthStr of integrante.mesesMorosos) {
+        try {
+          await pagosApi.create({
+            id_persona: integrante.id_asociado,
+            mes_anio_tmp: monthStr,
+            monto: amount,
+          });
+        } catch (err) {
+          console.error(`Error filling month ${monthStr}:`, err);
+        }
+      }
+      Alert.alert('Éxito', 'Pagos registrados correctamente');
+      await loadIntegrante();
+    } catch (error: any) {
+      Alert.alert('Error', 'Ocurrió un error al procesar los pagos.');
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
   const handleDeleteAllPayments = () => {

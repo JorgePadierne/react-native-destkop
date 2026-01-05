@@ -67,6 +67,7 @@ export interface LoginResponse {
 export interface CuotasPorAnio {
   anio: number;
   meses: {
+    visible: boolean;
     paid: boolean;
     amount: string | null;
     id: number | null;

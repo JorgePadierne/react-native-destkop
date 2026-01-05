@@ -147,6 +147,8 @@ const HomeScreen: React.FC = () => {
         isDarkMode={isDarkMode}
         canAddMember={useAuth().user?.role !== 'USER'}
         onAccounting={() => navigation.navigate('Accounting')}
+        totalCount={integrantes.length}
+        filteredCount={filteredIntegrantes.length}
       />
 
       <HomeTable integrantes={filteredIntegrantes} loading={loading} />
