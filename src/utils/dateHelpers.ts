@@ -22,7 +22,14 @@ export const generateMonthsRange = (
   };
 
   const startDate = parseDate(fechaAlta);
-  const endDate = parseDate(fechaBaja);
+  // If member is active (no fechaBaja), allow payments up to end of current year
+  let endDate: Date;
+  if (!fechaBaja) {
+    const now = new Date();
+    endDate = new Date(now.getFullYear(), 11, 31); // December 31st of current year
+  } else {
+    endDate = parseDate(fechaBaja);
+  }
 
   // Requirement: Association started collecting in November 2024.
   // We ignore any months before that.

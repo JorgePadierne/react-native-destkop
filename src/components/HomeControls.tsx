@@ -47,30 +47,30 @@ const HomeControls: React.FC<HomeControlsProps> = ({
         styles.controlsContainer,
         {backgroundColor: colors.surface, shadowColor: colors.cardShadow},
       ]}>
-      <View style={styles.topRow}>
-        <View style={styles.searchRow}>
-          <TextInput
-            style={[
-              styles.searchInput,
-              {
-                backgroundColor: colors.inputBg,
-                borderColor: colors.border,
-                color: colors.text,
-              },
-            ]}
-            placeholder="Buscar por nombre..."
-            placeholderTextColor={colors.textLight}
-            value={searchQuery}
-            onChangeText={onSearchChange}
-          />
-          {canAddMember && (
-            <TouchableOpacity
-              style={[styles.addButton, {backgroundColor: colors.secondary}]}
-              onPress={onAddMember}>
-              <Text style={styles.addButtonText}>+</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+      <View style={styles.searchRow}>
+        <TextInput
+          style={[
+            styles.searchInput,
+            {
+              backgroundColor: colors.inputBg,
+              borderColor: colors.border,
+              color: colors.text,
+            },
+          ]}
+          placeholder="Buscar por nombre..."
+          placeholderTextColor={colors.textLight}
+          value={searchQuery}
+          onChangeText={onSearchChange}
+        />
+      </View>
+      <View style={styles.buttonsRow}>
+        {canAddMember && (
+          <TouchableOpacity
+            style={[styles.addButton, {backgroundColor: colors.secondary}]}
+            onPress={onAddMember}>
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[styles.themeButton, {backgroundColor: colors.inputBg}]}
           onPress={toggleTheme}>
@@ -250,25 +250,22 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    gap: 10,
-  },
   searchRow: {
-    flex: 1,
+    marginBottom: 12,
+  },
+  buttonsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    marginBottom: 16,
   },
   searchInput: {
-    flex: 1,
+    width: '100%',
     borderWidth: 1,
     borderRadius: 12,
-    padding: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     fontSize: 16,
-    marginBottom: 0,
   },
   filtersSection: {
     marginBottom: 12,

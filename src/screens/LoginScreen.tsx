@@ -68,6 +68,8 @@ const LoginScreen: React.FC<Props> = () => {
             style={styles.input}
             placeholderTextColor={colors.textLight}
             secureTextEntry
+            onSubmitEditing={handleLogin}
+            returnKeyType="done"
           />
         </View>
 

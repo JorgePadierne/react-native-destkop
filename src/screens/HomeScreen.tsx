@@ -134,24 +134,27 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, {backgroundColor: colors.background}]}>
-      <HomeControls
-        searchQuery={searchQuery}
-        onSearchChange={handleSearch}
-        onAddMember={() => navigation.navigate('AddMember')}
-        filterStatus={filterStatus}
-        onFilterStatusChange={handleStatusFilter}
-        filterDebt={filterDebt}
-        onFilterDebtChange={handleDebtFilter}
-        colors={colors}
-        toggleTheme={toggleTheme}
-        isDarkMode={isDarkMode}
-        canAddMember={useAuth().user?.role !== 'USER'}
-        onAccounting={() => navigation.navigate('Accounting')}
-        totalCount={integrantes.length}
-        filteredCount={filteredIntegrantes.length}
-      />
-
-      <HomeTable integrantes={filteredIntegrantes} loading={loading} />
+      <View style={styles.sidebar}>
+        <HomeControls
+          searchQuery={searchQuery}
+          onSearchChange={handleSearch}
+          onAddMember={() => navigation.navigate('AddMember')}
+          filterStatus={filterStatus}
+          onFilterStatusChange={handleStatusFilter}
+          filterDebt={filterDebt}
+          onFilterDebtChange={handleDebtFilter}
+          colors={colors}
+          toggleTheme={toggleTheme}
+          isDarkMode={isDarkMode}
+          canAddMember={useAuth().user?.role !== 'USER'}
+          onAccounting={() => navigation.navigate('Accounting')}
+          totalCount={integrantes.length}
+          filteredCount={filteredIntegrantes.length}
+        />
+      </View>
+      <View style={styles.mainContent}>
+        <HomeTable integrantes={filteredIntegrantes} loading={loading} />
+      </View>
     </View>
   );
 };
@@ -159,7 +162,18 @@ const HomeScreen: React.FC = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, padding: 20},
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    padding: 20,
+  },
+  sidebar: {
+    width: 320,
+    marginRight: 20,
+  },
+  mainContent: {
+    flex: 1,
+  },
   logoutButton: {
     marginRight: 15,
     paddingVertical: 6,

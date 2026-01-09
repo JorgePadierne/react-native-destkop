@@ -426,47 +426,65 @@ const MemberDetailsScreen = () => {
     integrante.pagos?.reduce((sum, p) => sum + Number(p.monto), 0) || 0;
 
   return (
-    <ScrollView
-      style={[styles.container, {backgroundColor: colors.background}]}>
-      <MemberHeader integrante={integrante} totalAportado={totalAportado} />
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
+      <ScrollView style={styles.leftColumn}>
+        <MemberHeader integrante={integrante} totalAportado={totalAportado} />
 
-      <MemberInfoCard
-        integrante={integrante}
-        isEditing={isEditing}
-        onEditToggle={() => setIsEditing(!isEditing)}
-        onSave={handleSave}
-        onDelete={handleBaja}
-        onPermanentDelete={handlePermanentDelete}
-        onActivate={handleAlta}
-        isReadOnly={isReadOnly}
-      />
+        <MemberInfoCard
+          integrante={integrante}
+          isEditing={isEditing}
+          onEditToggle={() => setIsEditing(!isEditing)}
+          onSave={handleSave}
+          onDelete={handleBaja}
+          onPermanentDelete={handlePermanentDelete}
+          onActivate={handleAlta}
+          isReadOnly={isReadOnly}
+        />
 
-      {!isReadOnly && (
-        <View style={styles.bulkActions}>
-          <TouchableOpacity
-            style={[styles.bulkButton, {backgroundColor: colors.primary}]}
-            onPress={handleFillAllPayments}>
-            <Text style={styles.bulkButtonText}>Rellenar Pagos Pendientes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.bulkButton, {backgroundColor: colors.danger}]}
-            onPress={handleDeleteAllPayments}>
-            <Text style={styles.bulkButtonText}>Eliminar Todos los Pagos</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+        {!isReadOnly && (
+          <View style={styles.bulkActions}>
+            <TouchableOpacity
+              style={[styles.bulkButton, {backgroundColor: colors.primary}]}
+              onPress={handleFillAllPayments}>
+              <Text style={styles.bulkButtonText}>
+                Rellenar Pagos Pendientes
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.bulkButton, {backgroundColor: colors.danger}]}
+              onPress={handleDeleteAllPayments}>
+              <Text style={styles.bulkButtonText}>
+                Eliminar Todos los Pagos
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
 
-      {/* Payment grid now enabled with real data */}
-      <PaymentGrid
-        cuotasPorAnio={cuotasPorAnio}
-        onTogglePayment={handleTogglePayment}
-      />
-    </ScrollView>
+      <ScrollView style={styles.rightColumn}>
+        <PaymentGrid
+          cuotasPorAnio={cuotasPorAnio}
+          onTogglePayment={handleTogglePayment}
+        />
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1},
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    padding: 20,
+  },
+  leftColumn: {
+    flex: 1,
+    marginRight: 10,
+  },
+  rightColumn: {
+    flex: 1,
+    marginLeft: 10,
+  },
   center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
   bulkActions: {
     flexDirection: 'row',
